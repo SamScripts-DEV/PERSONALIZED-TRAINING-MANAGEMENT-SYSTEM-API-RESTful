@@ -1,23 +1,29 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import cors from 'cors';
+import routerUsers from './routers/users.routes.js';
+import {createServer} from 'http';
 
 //Inicializamos
 const app = express();
-dotenv.config();
+
 
 //Configuramos el puerto
-app.set('port', process.env.PORT || 3000);
+
 app.use(cors());
 
-//Middlewares
-app.use(express.json()); //Transforma los request body en objetos JavaScript
+
+app.use(express.json()); 
 
 
 //Rutas
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.send('Server running');
 });
 
+app.use('/api/v1', routerUsers);
 
-export default app;
+app.use((_,res) => res.status(404).json({res: "404 - Endpoint not found"}));
+
+const server = createServer(app);
+export default server;

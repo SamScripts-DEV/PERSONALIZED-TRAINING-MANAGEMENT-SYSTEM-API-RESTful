@@ -1,9 +1,9 @@
-import app from './server.js';
+import server from './server.js';
 import connection from './database.js';
 
 connection();
 
-app.listen(app.get('port'), () => {
-    console.log(`Server running on port ${app.get('port')}`);
+server.listen(process.env.PORT || 3000, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT || 3000}`);
 });
      
