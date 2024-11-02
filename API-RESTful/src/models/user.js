@@ -32,9 +32,27 @@ const userSchema = new Schema({
     status:{
         type: Boolean,
         default: true
+    },
+    token:{
+        type: String,
+        default: null
     }
+
 },{
     timestamps: true
 });
+
+userSchema.methods.encryptPassword = async (password) =>{
+    return await bcrypt.hash(password, await bcrypt.genSalt(10))
+}
+
+userSchema.methods.matchPassword = async function(password){
+    return await bcrypt.compare(password, this.password)
+}
+
+
+userSchema.methods.createToken = function(){
+    this.token = Math.random().toString(36).slice(2)
+}
 
 export default model('User', userSchema);
