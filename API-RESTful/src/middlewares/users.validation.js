@@ -1,7 +1,7 @@
 import { check, validationResult } from "express-validator";
 
 export const validateUser = [
-    check(["name", "lastname", "mail", "password"])
+    check(["name", "lastname", "email", "password"])
         .exists()
         .withMessage("Los campos nombre, apellido, correo y contraseña son oligatorios")
         .notEmpty()
@@ -16,7 +16,7 @@ export const validateUser = [
         .customSanitizer(value => value?.trim()),
 
 
-    check("mail")
+    check("email")
         .isEmail()
         .withMessage("El correo electrónico no es válido")
         .customSanitizer(value => value?.trim()),
