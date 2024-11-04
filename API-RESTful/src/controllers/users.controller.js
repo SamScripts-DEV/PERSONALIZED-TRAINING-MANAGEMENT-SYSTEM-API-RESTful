@@ -52,7 +52,7 @@ const updatePassword = async (req, res) => {
     userBDD.password = await userBDD.encryptPassword(req.body.newpassword)
     await userBDD.save()
 
-    res.status(200).json({res: 'COntraseña actualizada correctamente'})
+    res.status(200).json({res: 'Contraseña actualizada correctamente'})
 };
 
 export{
