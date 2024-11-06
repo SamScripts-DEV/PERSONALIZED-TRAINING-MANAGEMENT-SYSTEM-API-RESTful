@@ -12,7 +12,7 @@ let transporter = nodemailer.createTransport({
 });
 
 
-sendMailToCoach = async (userMail, password, nameCoach) =>{
+const sendMailToCoach = async (userMail, password, nameCoach) =>{
     let info = await transporter.sendMail({
         from: 'rutinfit@fitness.com',
         to: userMail,
@@ -23,7 +23,7 @@ sendMailToCoach = async (userMail, password, nameCoach) =>{
         <h3>Contraseña: ${password}</h3>
         <p>Por favor no compartas esta contraseña con nadie</p>
         <a href = ${process.env.URL_FRONT}>Click aqui para iniciar sesión</a>
-        <p>Gracias por ser parte de RutinFit</p>
+        <p>Gracias por ser parte de RutinFit.</p>
         `
     });
     console.log("Mensaje enviado correctamente");
