@@ -12,7 +12,7 @@ const router = Router();
 
 //Public routes
 
-router.post('/coach-register', coachRegister);  //Registra un entrenador
+router.post('/coach/register', coachRegister);  //Registra un entrenador
 
 //Private routes
 router.get('/coach/view-coaches',verifyAuth, viewCoaches); //Muestra todos los entrenadores
