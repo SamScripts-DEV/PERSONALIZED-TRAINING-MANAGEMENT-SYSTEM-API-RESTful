@@ -9,7 +9,7 @@ import user from "../models/user.js";
 const coachRegister = async (req, res) => {
     try {
         const {name, lastname, email, description} = req.body 
-        const verifyEmailBDD = await User.findOne({email}) || await Coach.findOne({email})
+        const verifyEmailBDD = await User.findOne({email}) 
         if(verifyEmailBDD) return res.status(400).json({res: 'El email ya se encuentra registrado'})
 
         const newUser = new User({name, lastname, email, rol: 'entrenador'})
@@ -59,31 +59,51 @@ const viewCoachById = async (req, res) => {
 
 const updateCoach = async (req, res) => {
     const {id} = req.params 
+    const {name, lastname, email, description} = req.body
     if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'Id no válido'})
     if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
 
-    await Coach.findByIdAndUpdate(id, req.body)
-    res.status(200).json({res: 'Entrenador actualizado correctamente'})
+    try {
+        const coach = await Coach.findById(id)
+        if(!coach) return res.status(404).json({res: 'Entrenador no encontrado'})
+        
+        const updatedCoach = await Coach.findByIdAndUpdate(id, {description}, {new: true})
+
+        const updateUser = await User.findByIdAndUpdate(
+            coach.user_id, 
+            {name, lastname, email}, 
+            {new: true}
+        );
+        res.status(200).json({res: 'Entrenador actualizado correctamente', updatedCoach, updateUser})
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor'})
+    }
 };
 
 
 const deleteCoach = async (req, res) => {
     try {
         const {id} = req.params 
-    if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'Id no válido'})
+        if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'Id no válido'})
 
-    const deletedCoach = await Coach.findByIdAndDelete({user_id: id})
-    if (!deletedCoach)  return res.status(404).json({res: 'Entrenador no encontrado'})
+        console.log(id);
 
+        const coach = await Coach.findOne({_id: id})
+        if(!coach) return res.status(404).json({res: 'Entrenador no encontrado'})
 
-    const deletedUser = await User.findByIdAndDelete(id)
-    if (!deletedUser) return res.status(404).json({res: 'Usuario no encontrado'})
+        const {user_id} = coach
+        const user = await User.findById(user_id)
 
-
-    res.status(200).json({res: 'Entrenador eliminado correctamente'})
+        if(!user) return res.status(404).json({res: 'Usuario no encontrado'})
+        await Coach.findByIdAndDelete(id)
+        await User.findByIdAndDelete(user_id)
+        
+        res.status(200).json({res: 'Entrenador eliminado correctamente'})
 
     } catch (error) {
-        res.status(500).json({res: 'Error en el servidor'})
+        res.status(500).json({res: 'Error en el servidor', error})
         
     }
 };

@@ -8,4 +8,5 @@ const router = Router();
 
 
 //Rutas publicas
-router.post("/client/register",validateClient, clientRegister);
+router.post("/client/register",validateClient, clientRegister);  //registro del cliente
+export default router

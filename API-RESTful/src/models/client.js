@@ -34,7 +34,7 @@ const clientSchema = new Schema({
 
     },
     levelactivity:{
-        type: Number,
+        type: String,
         enum: ['principiantes', 'intermedio', 'avanzado'],
         required: true,
         trim: true
@@ -42,7 +42,7 @@ const clientSchema = new Schema({
     },
     days:{
         type: [String],
-        enum: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'],
+        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sábado', 'domingo'],
         required: true,
 
     },
