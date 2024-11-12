@@ -36,6 +36,10 @@ const userSchema = new Schema({
     token:{
         type: String,
         default: null
+    },
+    confirmEmail:{
+        type: Boolean,
+        default: false
     }
 
 },{

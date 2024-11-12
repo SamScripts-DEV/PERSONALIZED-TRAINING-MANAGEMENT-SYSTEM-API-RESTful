@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import generateToken from "../helpers/JWT.js";
+import { sendMailToConfirm } from "../config/nodemailer.js";
 
 const userRegister = async (req, res) => {
     try {
@@ -10,6 +11,8 @@ const userRegister = async (req, res) => {
 
         const newUser = new User(req.body)
         newUser.password = await newUser.encryptPassword(password)
+        // await newUser.crearToken()
+        // sendMailToConfirm(email, newUser.token)
 
         await newUser.save()
 
@@ -19,6 +22,18 @@ const userRegister = async (req, res) => {
         return res.status(500).json({res: 'Error en el servidor'})
     }
 };
+
+// const confirmEmail = async (req, res) => {
+//     if(!(req.params.token)) return res.status(400).json({res: 'No se puede validar la cuenta'})
+
+//     const userBDD = await User.findOne({token: req.params.token})
+//     if(!userBDD?.token) return res.status(404).json({res: 'La cuenta ya ha sido validada'})
+    
+//     userBDD.token = null
+//     userBDD.confirmEmail = true
+//     await userBDD.save()
+//     res.status(200).json({res: 'Cuanta validada puedes iniciar sesión'})
+// };
 
 
 const login = async(req,res) => {
@@ -58,5 +73,6 @@ const updatePassword = async (req, res) => {
 export{
     userRegister,
     login,
-    updatePassword
+    updatePassword,
+    
 }

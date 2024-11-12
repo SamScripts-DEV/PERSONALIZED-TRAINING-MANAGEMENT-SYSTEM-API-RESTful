@@ -11,6 +11,25 @@ let transporter = nodemailer.createTransport({
     }
 });
 
+const sendMailToConfirm = async (userMail, token) => {
+    let mailOptions = {
+        from: process.env.USER_MAILTRAP,
+        to: userMail,
+        subject: 'Confirmación de correo',
+        html: `<h1>Confirma tu correo</h1>
+        <p>Para confirmar tu correo da click en el siguiente enlace</p>
+        <a href="${process.env.URL_FRONT}/confirm/${token}">Click aqui</a>
+        `
+    }
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Email enviado: ' + info.response);
+        }
+    })
+}
+
 
 const sendMailToCoach = async (userMail, password, nameCoach) =>{
     let info = await transporter.sendMail({
@@ -31,5 +50,6 @@ const sendMailToCoach = async (userMail, password, nameCoach) =>{
 }
 
 export {
-    sendMailToCoach
+    sendMailToCoach,
+    sendMailToConfirm
 }
