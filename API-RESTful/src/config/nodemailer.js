@@ -49,7 +49,21 @@ const sendMailToCoach = async (userMail, password, nameCoach) =>{
     
 }
 
+const sendMailToRecoveryPassword = async (userMail, token) => {
+    let info = await transporter.sendMail({
+        from: 'rutinfit@fitness.com',
+        to: userMail,
+        subject: "Recuperación de contraseña",
+        html: `<h1>Recuperación de contraseña</h1>
+        <p>Para recuperar tu contraseña da click en el siguiente enlace</p>
+        <a href="${process.env.URL_FRONT}/recovery/${token}">Click aqui</a>
+        `
+    });
+    console.log("Mensaje enviado correctamente");
+}
+
 export {
     sendMailToCoach,
-    sendMailToConfirm
+    sendMailToConfirm,
+    sendMailToRecoveryPassword
 }

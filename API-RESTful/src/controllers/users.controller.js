@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import generateToken from "../helpers/JWT.js";
-import { sendMailToConfirm } from "../config/nodemailer.js";
+import { sendMailToConfirm, sendMailToRecoveryPassword } from "../config/nodemailer.js";
 
 const userRegister = async (req, res) => {
     try {
@@ -70,9 +70,51 @@ const updatePassword = async (req, res) => {
     res.status(200).json({res: 'Contraseña actualizada correctamente'})
 };
 
+const restorePassword = async (req, res) => {
+    const {email} = req.body
+    if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
+    const userBDD = await User.findOne({email})
+    if(!userBDD) return res.status(404).json({res: 'El email no se encuentra registrado'})
+
+    await userBDD.createToken()
+    sendMailToRecoveryPassword(email, userBDD.token)
+    await userBDD.save()
+
+    res.status(200).json({res: 'Correo enviado, revise su bandeja de entrada'})
+};
+
+const confirmTokenPassword = async (req, res) => {
+    if(!(req.params.token)) return res.status(400).json({res: 'Token no encontrado'})
+
+    const userBDD = await User.findOne({token: req.params.token})
+    if(userBDD?.token !== req.params.token) return res.status(404).json({res: 'Token no valido'})
+
+    await userBDD.save()
+    
+    res.status(200).json({res: 'Token confirmado, puede cambiar su contraseña'})
+};
+
+const newPassword = async (req, res) => {
+    const {password, newpassword}= req.body
+    if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
+    if(password !== newpassword) return res.status(400).json({res: 'Las contraseñas no coinciden'})
+        
+    const userBDD = await User.findOne({token: req.token})
+    if(userBDD?.token !== req.params.token) return res.status(404).json({res: 'Token no valido'})
+    
+    userBDD.token = null
+    userBDD.password = await userBDD.encryptPassword(password)
+    await userBDD.save()
+
+    res.status(200).json({res: 'Contraseña actualizada correctamente'})
+}
+
 export{
     userRegister,
     login,
     updatePassword,
+    restorePassword,
+    confirmTokenPassword,
+    newPassword
     
 }
