@@ -5,6 +5,7 @@ import Coach from "../models/coach.js";
 import User from "../models/user.js";
 import { login } from "./users.controller.js";
 import user from "../models/user.js";
+import Client from "../models/client.js";
 
 const coachRegister = async (req, res) => {
     try {
@@ -14,7 +15,7 @@ const coachRegister = async (req, res) => {
 
         const newUser = new User({name, lastname, email, rol: 'entrenador'})
         console.log(newUser);
-        const password = `rutinfit${Math.random().toString(36).slice(2)}`
+        const password = `RutinFit${Math.random().toString(36).slice(2)}`
         newUser.password = await newUser.encryptPassword(password)
 
         await newUser.save()
@@ -108,6 +109,41 @@ const deleteCoach = async (req, res) => {
     }
 };
 
+const getClientsByCoach = async (req, res) => {
+    try {
+        const coachID = req.userBDD._id
+
+        const clients = await Client.find({coach_id: coachID}).populate('user_id', 'name lastname email')
+        if(!clients.length) return res.status(404).json({res: 'No hay clientes asignados a este entrenador'})
+
+        res.status(200).json(clients)
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
+};
+
+const getClientByCoachById = async (req, res) => {
+    try {
+        const coach_id = req.userBDD._id
+        const {clientID}=req.params
+
+        const clientBDD = await Client.findOne({coach_id, _id: clientID}).populate('user_id', 'name lastname email')
+        if(!clientBDD) return res.status(404).json({res: 'Cliente no encontrado'})
+        
+        res.status(200).json({clientBDD})
+
+        
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+    }
+}
+
+
+
 
 
 export {
@@ -115,5 +151,7 @@ export {
     viewCoaches,
     viewCoachById,
     updateCoach,
-    deleteCoach
+    deleteCoach,
+    getClientsByCoach,
+    getClientByCoachById
 }

@@ -90,7 +90,9 @@ const configureClienProfile = async (req, res) => {
         res.status(500).json({res: 'Error en el servidor', error})
         
     }
-}
+};
+
+
 
 
 
