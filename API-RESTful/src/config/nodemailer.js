@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
+import crypto from 'crypto';
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -49,6 +50,7 @@ const sendMailToCoach = async (userMail, password, nameCoach) =>{
     
 }
 
+
 const sendMailToRecoveryPassword = async (userMail, token) => {
     let info = await transporter.sendMail({
         from: 'rutinfit@fitness.com',
@@ -62,8 +64,25 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log("Mensaje enviado correctamente");
 }
 
+const generateVerificationCode = () => crypto.randomInt(100000, 999999).toString();
+
+
+const sendVerificationMail = async (userMail, code) => {
+    let info = await transporter.sendMail({
+        from: 'rutinfit@fitness.com',
+        to: userMail,
+        subject: "Código de verificación",
+        html: `<h1>Código de verificación</h1>
+        <p>Para confirmar tu correo ingresa el siguiente código</p>
+        <h3>${code}</h3>
+        `   
+    });
+}
+
 export {
     sendMailToCoach,
     sendMailToConfirm,
-    sendMailToRecoveryPassword
+    sendMailToRecoveryPassword,
+    generateVerificationCode,
+    sendVerificationMail
 }

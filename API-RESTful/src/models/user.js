@@ -40,6 +40,14 @@ const userSchema = new Schema({
     confirmEmail:{
         type: Boolean,
         default: false
+    },
+    verificationCode:{
+        type: String,
+        required: false
+    },
+    codeExpiry:{
+        type: Date,
+        required: false
     }
 
 },{

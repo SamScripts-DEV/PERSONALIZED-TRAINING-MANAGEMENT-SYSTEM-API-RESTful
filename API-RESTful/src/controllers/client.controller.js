@@ -1,7 +1,7 @@
 import User from "../models/user.js";
 import Client from "../models/client.js";
 import generateToken from "../helpers/JWT.js";
-import { sendMailToConfirm } from "../config/nodemailer.js";
+import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
 
 
 const clientRegisterAll = async (req, res) => {
@@ -47,10 +47,15 @@ const clientRegisterOnly = async (req, res) => {
 
         const newUser = new User(req.body)
         newUser.password = await newUser.encryptPassword(password)
-         await newUser.createToken()
-         sendMailToConfirm(email, newUser.token)
 
+        const verificationCode = generateVerificationCode()
+        newUser.verificationCode = verificationCode
+        newUser.codeExpiry = new Date(Date.now() + 10 * 60 * 1000)
+
+        
         await newUser.save()
+
+        sendMailToConfirm(newUser.email, verificationCode)
 
         res.status(201).json({res: 'Registro exitoso, confirme su correo para iniciar sesión', newUser})
     } catch (error) {
@@ -61,15 +66,24 @@ const clientRegisterOnly = async (req, res) => {
 
 
 const confirmEmail = async (req, res) => {
-        if(!(req.params.token)) return res.status(400).json({res: 'No se puede validar la cuenta'})
+    const {email, code} = req.body
+    try {
+        const userBDD = await User.findOne({email})
+        if(!userBDD) return res.status(400).json({res: 'Usuario no encontrado'})
 
-        const userBDD = await User.findOne({token: req.params.token})
-        if(!userBDD?.token) return res.status(404).json({res: 'La cuenta ya ha sido validada'})
+        if(userBDD.verificationCode !== code || userBDD.codeExpiry < Date.now()) return res.status(400).json({res: 'Código invalido o expirado'})
+        
 
-        userBDD.token = null
+        userBDD.verificationCode = null
+        userBDD.codeExpiry = null
         userBDD.confirmEmail = true
         await userBDD.save()
-        res.status(200).json({res: 'Cuanta validada puedes iniciar sesión'})
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
+      
 };
 
 const configureClienProfile = async (req, res) => {
