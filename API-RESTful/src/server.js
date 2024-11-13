@@ -4,6 +4,7 @@ import cors from 'cors';
 import routerUsers from './routers/users.routes.js';
 import routerCoach from './routers/coach.routes.js';
 import routerClient from './routers/client.routes.js';
+import routerExercises from './routers/exercises.routes.js';
 import {createServer} from 'http';
 
 //Inicializamos
@@ -30,6 +31,7 @@ app.get('/', (_, res) => {
 app.use('/api/v1', routerUsers);
 app.use('/api/v1', routerCoach);
 app.use('/api/v1', routerClient);
+app.use('/api/v1', routerExercises)
 
 app.use((_,res) => res.status(404).json({res: "404 - Endpoint not found"}));
 

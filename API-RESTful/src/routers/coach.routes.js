@@ -10,6 +10,7 @@ import {
 } from "../controllers/coach.controller.js";
 import verifyAuth from "../middlewares/auth.js";
 
+
 const router = Router();
 
 //Public routes
@@ -23,6 +24,8 @@ router.put('/coach/update-coach/:id',verifyAuth, updateCoach); //Actualiza un en
 router.delete('/coach/delete-coach/:id',verifyAuth, deleteCoach); //Elimina un entrenador por id
 router.get('/coach/get-clients',verifyAuth, getClientsByCoach); //Muestra los clientes de un entrenador por id
 router.get('/coach/get-client/:clientID',verifyAuth, getClientByCoachById); //Muestra el detalle de un solo cliente
+
+
 
 
 export default router;
