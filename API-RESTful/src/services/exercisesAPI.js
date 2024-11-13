@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 const fetchallexercises = async() => {
 
     const options = {
@@ -13,8 +14,8 @@ const fetchallexercises = async() => {
 
     try {
         const response = await axios.request(options);
-        const exercisesIDs = response.data.excercises_ids.slice(0, 10)
-        console.log(exercisesIDs);
+        const exercisesIDs = response.data.excercises_ids.slice(0, 100)
+        
         
         return exercisesIDs;
         

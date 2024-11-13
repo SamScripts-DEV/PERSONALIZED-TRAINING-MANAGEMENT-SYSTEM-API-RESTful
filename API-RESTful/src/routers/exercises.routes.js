@@ -4,7 +4,7 @@ import {allExercises, getAllExercisesWithDetails, exercisesByID } from "../contr
 
 const router = Router();
 
-router.get('/exercises', allExercises)
+router.get('/exercises', allExercises) //Muestra todos los IDS de los ejercicios disponibles
  router.get('/exercises/details', exercisesByID)
 
 

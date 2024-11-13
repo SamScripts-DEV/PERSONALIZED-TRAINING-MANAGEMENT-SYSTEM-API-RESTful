@@ -6,6 +6,7 @@ import routerCoach from './routers/coach.routes.js';
 import routerClient from './routers/client.routes.js';
 import routerExercises from './routers/exercises.routes.js';
 import {createServer} from 'http';
+import { getAllExercisesWithDetailsforSave} from './controllers/exercises.controller.js';
 
 //Inicializamos
 const app = express();
@@ -27,6 +28,8 @@ app.use(express.json());
 app.get('/', (_, res) => {
     res.send('Server running');
 });
+
+getAllExercisesWithDetailsforSave()
 
 app.use('/api/v1', routerUsers);
 app.use('/api/v1', routerCoach);
