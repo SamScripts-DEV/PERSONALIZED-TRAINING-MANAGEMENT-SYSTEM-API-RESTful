@@ -13,6 +13,8 @@ const fetchallexercises = async() => {
 
     try {
         const response = await axios.request(options);
+        console.log(response.data);
+        
         return response.data;
     } catch (error) {
         console.error(error);
@@ -23,7 +25,7 @@ const fetchExcercisesByID = async(id) => {
     
         const options = {
             method: 'GET',
-            url: `https://exercise-db-fitness-workout-gym.p.rapidapi.com/exercises/${id}`,
+            url: `https://exercise-db-fitness-workout-gym.p.rapidapi.com/exercise/${id}`,
             headers: {
                 'x-rapidapi-key': process.env.API_KEY,
                 'x-rapidapi-host': process.env.API_HOST
@@ -34,13 +36,10 @@ const fetchExcercisesByID = async(id) => {
             const response = await axios.request(options);
             return response.data;
         } catch (error) {
-            console.error(error);
+            console.error(`Error al conseguir detalles del ejercicio`,error);
         }
 };
 
-const getEsercisesWithDetails = async() => {
-    
-}
 
 
 
@@ -84,5 +83,6 @@ const fetchMusclesforExercises = async() => {
 
 export{
     fetchallexercises,
-    fetchTypesforExercises
+    fetchTypesforExercises,
+    fetchExcercisesByID
 }

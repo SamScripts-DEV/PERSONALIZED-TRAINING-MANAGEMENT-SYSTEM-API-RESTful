@@ -1,4 +1,4 @@
-import { fetchallexercises, fetchTypesforExercises } from "../services/exercisesAPI.js";
+import { fetchallexercises, fetchTypesforExercises, fetchExcercisesByID } from "../services/exercisesAPI.js";
 
 const allExercises = async(req, res) => {
     try {
@@ -20,10 +20,46 @@ const typesExercises = async(req, res) => {
         res.status(500).json({res:"Error en el servidor"});
         
     }
+};
+
+
+const exercisesByID = async(req, res) => {
+    try {
+        const exercise = await fetchExcercisesByID();
+        res.status(200).json(exercise);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({res:"Error en el servidor"});
+    }
+}
+
+
+const getAllExercisesWithDetails = async(req, res) => {
+    try {
+        const exercises = await fetchallexercises();
+        if(!Array.isArray(exercises)){
+            return res.status(500).json({res:"Error en el servidor"});
+        }
+
+        const detailsPromises = exercises.map(exercise => fetchExcercisesByID(exercise.id));
+
+        const exerciseWithDetails = await Promise.all(detailsPromises);
+
+        const validExercises = exerciseWithDetails.filter(Boolean);
+
+        res.status(200).json(validExercises);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({res:"Error en el servidor", error});
+        
+    }
 }
 
 export{
     allExercises,
-    typesExercises
+    typesExercises,
+    exercisesByID,
+    getAllExercisesWithDetails
 }
 
