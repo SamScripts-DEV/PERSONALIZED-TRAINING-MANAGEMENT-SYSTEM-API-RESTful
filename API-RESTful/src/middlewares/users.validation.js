@@ -11,6 +11,7 @@ export const validateUser = [
     check(["name", "lastname"])
         .isString()
         .isLength({min: 3, max: 20})
+        .withMessage("El nombre y apellido deben tener entre 3 y 20 caracteres")
         .isAlpha("es-ES", {ignore: "áéíóúñÁÉÍÓÚÑ"})
         .withMessage("El nombre y apellido deben contener solo letras")
         .customSanitizer(value => value?.trim()),
