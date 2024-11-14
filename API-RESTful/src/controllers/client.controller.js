@@ -71,13 +71,16 @@ const confirmEmail = async (req, res) => {
         const userBDD = await User.findOne({email})
         if(!userBDD) return res.status(400).json({res: 'Usuario no encontrado'})
 
-        if(userBDD.verificationCode !== code || userBDD.codeExpiry < Date.now()) return res.status(400).json({res: 'Código invalido o expirado'})
+        if(userBDD.verificationCode !== code || userBDD.codeExpiry < Date.now()) return res.status(400).json({res: 'Código invalido o expirado'});
+        if(!userBDD.verificationCode) return res.status(401).json({res:"La cuenta no ha sido verificada"})
+
         
 
         userBDD.verificationCode = null
         userBDD.codeExpiry = null
         userBDD.confirmEmail = true
         await userBDD.save()
+        res.status(200).json({res: 'Correo verificado con éxito'})
     } catch (error) {
         console.error(error)
         res.status(500).json({res: 'Error en el servidor', error})

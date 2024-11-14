@@ -17,7 +17,7 @@ router.post("/client/register",validateClient, clientRegisterAll);  //Registra a
 
 router.post("/client/only-register",validateUser, clientRegisterOnly); //Registra al cliente con solo email y password
 
-router.get("/client/confirm-email", confirmEmail); //Confirma el email del cliente
+router.post("/client/confirm-email", confirmEmail); //Confirma el email del cliente
 
 //Rutas privadas
 
