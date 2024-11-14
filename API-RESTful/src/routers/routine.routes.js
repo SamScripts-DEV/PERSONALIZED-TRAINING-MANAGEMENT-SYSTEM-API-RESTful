@@ -6,7 +6,7 @@ import {
     updateRoutine,
     deleteRoutine 
 } from "../controllers/routine.controller.js";
-import { verifyAuth } from "../middlewares/auth.js";
+import verifyAuth from "../middlewares/auth.js";
 
 const router = Router();
 
