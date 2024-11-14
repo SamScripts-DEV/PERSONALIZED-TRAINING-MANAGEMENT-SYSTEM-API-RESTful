@@ -30,7 +30,7 @@ app.get('/', (_, res) => {
     res.send('Server running');
 });
 
-getAllExercisesWithDetailsforSave()
+// getAllExercisesWithDetailsforSave()
 
 app.use('/api/v1', routerUsers);
 app.use('/api/v1', routerCoach);
