@@ -77,6 +77,10 @@ const getAllExercisesWithDetailsforSave = async() => {
 };
 
 
+
+
+
+
 const viewAllExercises = async(req, res) => {
     try {
         const exercises = await Exercise.find();

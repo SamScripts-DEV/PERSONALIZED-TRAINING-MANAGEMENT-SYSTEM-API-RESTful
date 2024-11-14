@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import Client from "../models/client.js";
 import generateToken from "../helpers/JWT.js";
 import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
+import Routine from "../models/routine.js";
 
 
 const clientRegisterAll = async (req, res) => {
@@ -110,6 +111,21 @@ const configureClienProfile = async (req, res) => {
 };
 
 
+const viewRoutineForClient = async (req, res) => {
+    try {
+        const routine = await Routine.findOne({client_id: req.userBDD._id}).populate('client_id', 'name lastname').populate('coach_id', 'name lastname').populate('days.exercises', 'apiID name category instructions')
+        if(!routine) return res.status(404).json({res: 'No hay rutina asignada'})
+
+        res.status(200).json({res: 'Rutina encontrada', routine})
+        
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
+}
+
+
 
 
 
@@ -117,5 +133,6 @@ export{
     clientRegisterAll,
     clientRegisterOnly,
     confirmEmail,
-    configureClienProfile
+    configureClienProfile,
+    viewRoutineForClient
 }

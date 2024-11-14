@@ -3,7 +3,8 @@ import{
     clientRegisterAll,
     clientRegisterOnly,
     confirmEmail,
-    configureClienProfile
+    configureClienProfile,
+    viewRoutineForClient
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -22,4 +23,6 @@ router.post("/client/confirm-email", confirmEmail); //Confirma el email del clie
 //Rutas privadas
 
 router.put("/client/configure-profile",verifyAuth, configureClienProfile); //Configura el perfil del cliente
+
+router.get("/client/view-routine",verifyAuth, viewRoutineForClient); //Muestra la rutina del cliente
 export default router
