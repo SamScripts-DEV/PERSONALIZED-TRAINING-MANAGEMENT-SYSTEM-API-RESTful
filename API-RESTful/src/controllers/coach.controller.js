@@ -140,7 +140,7 @@ const getClientByCoachById = async (req, res) => {
         console.error(error)
         res.status(500).json({res: 'Error en el servidor', error})
     }
-}
+};
 
 
 

@@ -1,6 +1,6 @@
 import { fetchallexercises, fetchExcercisesByID } from "../services/exercisesAPI.js";
 import Exercise from "../models/exercises.js";
-import { get } from "mongoose";
+
 
 const allExercises = async(req, res) => {
     try {
@@ -23,7 +23,7 @@ const exercisesByID = async(req, res) => {
         console.error(error);
         res.status(500).json({res:"Error en el servidor"});
     }
-}
+};
 
 
 const getAllExercisesWithDetails = async(req, res) => {
@@ -43,7 +43,7 @@ const getAllExercisesWithDetails = async(req, res) => {
         res.status(500).json({res:"Error en el servidor"});
         
     }
-}
+};
 
 const getAllExercisesWithDetailsforSave = async() => {
     try {
@@ -74,7 +74,30 @@ const getAllExercisesWithDetailsforSave = async() => {
     } catch (error) {
         console.error(error)
     }
-}
+};
+
+
+const viewAllExercises = async(req, res) => {
+    try {
+        const exercises = await Exercise.find();
+        res.status(200).json(exercises);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({res:"Error en el servidor"});
+    }
+};
+
+const viewAllExercisesByID = async(req, res) => {
+    const {id} = req.params;
+    try {
+        const exercise = await Exercise.findById(id);
+        res.status(200).json(exercise);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({res:"Error en el servidor"});
+        
+    }
+};
 
 
 
@@ -83,6 +106,10 @@ export{
     allExercises,
     exercisesByID,
     getAllExercisesWithDetails,
-    getAllExercisesWithDetailsforSave
+    getAllExercisesWithDetailsforSave,
+
+    viewAllExercises,
+    viewAllExercisesByID
+
 }
 

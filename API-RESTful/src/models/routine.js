@@ -12,7 +12,21 @@ const routineSchema = new Schema({
         ref: 'Coach',
         required: true
     },
-    exercises:[],
+    days: [
+        {
+            day:{
+                type: String,
+                required: true
+            },
+            exercises:[
+                {
+                    type: Types.ObjectId,
+                    ref: 'Exercise',
+                    required: true
+                }
+            ]
+        }
+    ],
     assignment_date:{
         type: Date,
         default: Date.now
@@ -22,3 +36,5 @@ const routineSchema = new Schema({
     },
     
 });
+
+export default model("Routine", routineSchema);
