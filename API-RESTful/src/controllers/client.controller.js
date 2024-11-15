@@ -3,6 +3,7 @@ import Client from "../models/client.js";
 import generateToken from "../helpers/JWT.js";
 import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
 import Routine from "../models/routine.js";
+import Progress from "../models/progress.js";
 
 
 const clientRegisterAll = async (req, res) => {
@@ -98,6 +99,12 @@ const configureClienProfile = async (req, res) => {
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
 
+        const initialProgress = await Progress.create({
+            client_id: userID,
+            currentWeight: weight,
+            observations: 'Inicio del Perfil'
+        })
+
         const newClient = new Client({
             user_id: userID, 
             genre, 
@@ -107,10 +114,7 @@ const configureClienProfile = async (req, res) => {
             levelactivity, 
             days, 
             coach_id,
-            progress: [{
-                currentWeight: weight,
-                observations: 'Inicio del Perfil'
-            }]
+            progress: [initialProgress]
         })
         await newClient.save()
         res.status(201).json({res: 'Perfil creado correctamente', newClient})
