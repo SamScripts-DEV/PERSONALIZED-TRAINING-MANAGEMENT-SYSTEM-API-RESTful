@@ -123,6 +123,43 @@ const viewRoutineForClient = async (req, res) => {
         res.status(500).json({res: 'Error en el servidor', error})
         
     }
+};
+
+
+const viewClientProfile = async(req, res) => {
+    try {
+        const client_id = req.userBDD._id
+
+        const clientProfile = await Client.findOne({user_id: client_id})
+            .populate('user_id', 'name lastname email')
+            .populate('coach_id', 'user_id')
+
+            if (!clientProfile) return res.status(404).json({ res: 'Perfil de cliente no encontrado' });
+
+           
+            res.status(200).json({
+                res: 'Perfil de cliente encontrado',
+                client: {
+                    client_id: clientProfile._id,
+                    name: clientProfile.user_id.name,
+                    lastname: clientProfile.user_id.lastname,
+                    email: clientProfile.user_id.email,
+                    coach_id: clientProfile.coach_id ? clientProfile.coach_id._id : null,
+                    coach_name: clientProfile.coach_id ? clientProfile.coach_id.user_id.name : null,
+                    genre: clientProfile.genre,
+                    weight: clientProfile.weight,
+                    height: clientProfile.height,
+                    age: clientProfile.age,
+                    levelactivity: clientProfile.levelactivity,
+                    days: clientProfile.days
+                }
+            });
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
 }
 
 
@@ -134,5 +171,6 @@ export{
     clientRegisterOnly,
     confirmEmail,
     configureClienProfile,
-    viewRoutineForClient
+    viewRoutineForClient,
+    viewClientProfile
 }

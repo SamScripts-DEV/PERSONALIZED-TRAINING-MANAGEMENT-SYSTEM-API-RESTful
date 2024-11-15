@@ -143,6 +143,26 @@ const getClientByCoachById = async (req, res) => {
 };
 
 
+const viewCoachProfile = async (req, res) => {
+    try {
+        const coach_id = req.userBDD._id
+
+        const coachProfile = await Coach.findOne({user_id: coach_id})
+            .populate('user_id', 'name lastname email rol')
+            .populate('clientes.client_id', 'name lastname email')
+
+        if(!coachProfile) return res.status(404).json({res: 'Entrenador no encontrado'})
+
+        res.status(200).json(coachProfile)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
+
+};
+
+
 
 
 
@@ -153,5 +173,6 @@ export {
     updateCoach,
     deleteCoach,
     getClientsByCoach,
-    getClientByCoachById
+    getClientByCoachById,
+    viewCoachProfile
 }
