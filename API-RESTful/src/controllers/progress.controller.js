@@ -4,14 +4,16 @@ import Progress from "../models/progress.js";
 
 const createProgress = async (req, res) => {
     try {
-        const {client_id, currentWeight, observations} = req.body
-        if(!Types.ObjectId.isValid(client_id)) return res.status(400).json({res: 'El id del cliente no es válido'})
-        if(!client_id || !currentWeight) return res.status(400).json({res: 'El cliente y el peso actual son obligatorios'})
+        const userID = req.userBDD._id
+        const clientExist = await Client.findOne({user_id: userID})
+        const {currentWeight, observations} = req.body
 
-        const clientExist = await Client.findById(client_id)
+        if(!currentWeight) return res.status(400).json({res: 'El peso actual son obligatorios'})
+
+        
         if(!clientExist) return res.status(400).json({res: 'El cliente no existe'})
 
-        const lastProgress = await Progress.findOne({client_id}).sort({start_date: -1}).limit(1)
+        const lastProgress = await Progress.findOne({client_id: clientExist}).sort({start_date: -1}).limit(1)
 
         let progressMessage = ''
         if(lastProgress){
@@ -28,7 +30,7 @@ const createProgress = async (req, res) => {
         }
 
         const newProgress = new Progress({
-            client_id,
+            client_id: clientExist._id,
             currentWeight,
             observations,
             start_date: new Date()
