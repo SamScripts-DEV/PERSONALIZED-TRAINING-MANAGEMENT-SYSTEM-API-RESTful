@@ -99,7 +99,8 @@ const newPassword = async (req, res) => {
     if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
     if(password !== newpassword) return res.status(400).json({res: 'Las contraseñas no coinciden'})
         
-    const userBDD = await User.findOne({token: req.token})
+    const userBDD = await User.findOne({token: req.params.token})
+    
     if(userBDD?.token !== req.params.token) return res.status(404).json({res: 'Token no valido'})
     
     userBDD.token = null
