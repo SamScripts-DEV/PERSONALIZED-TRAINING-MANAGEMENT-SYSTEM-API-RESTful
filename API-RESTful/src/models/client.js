@@ -35,14 +35,14 @@ const clientSchema = new Schema({
     },
     levelactivity:{
         type: String,
-        enum: ['principiantes', 'intermedio', 'avanzado'],
+        enum: ['principiante', 'intermedio', 'avanzado'],
         required: true,
         trim: true
         
     },
     days:{
         type: [String],
-        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sábado', 'domingo'],
+        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'],
         required: true,
 
     },
@@ -52,18 +52,8 @@ const clientSchema = new Schema({
     },
     progress:[
         {
-            startDate: {
-                type: Date,
-                default: Date.now
-            },
-            currentWeight: {
-                type: Number,
-                trim: true
-            },
-            observations: {
-                type: String,
-                trim: true
-            }
+            type: Types.ObjectId,
+            ref: 'Progress',
         }
     ]
 });

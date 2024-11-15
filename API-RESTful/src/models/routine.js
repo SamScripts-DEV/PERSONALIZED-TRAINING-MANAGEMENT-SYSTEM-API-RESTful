@@ -16,6 +16,7 @@ const routineSchema = new Schema({
         {
             day:{
                 type: String,
+                enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'],
                 required: true
             },
             exercises:[
@@ -34,6 +35,22 @@ const routineSchema = new Schema({
     comments:{
         type: String
     },
+    start_date:{
+        type: Date,
+        required: true
+    },
+    end_date:{
+        type: Date,
+        required: true
+    },
+    duration_days:{
+        type: Number,
+        required: true
+    },
+    completed:{
+        type: Boolean,
+        default: false
+    }
     
 });
 

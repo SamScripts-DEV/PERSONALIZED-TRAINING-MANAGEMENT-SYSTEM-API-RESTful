@@ -5,6 +5,8 @@ const createRoutine = async (req, res) => {
         const {client_id, coach_id, days, comments} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
 
+        if(days.some(day.exercises.length === 0)) return res.status(400).json({res: 'Agregue al menos un ejercicio por día'})
+
         if(!Types.ObjectId.isValid(client_id) || !Types.ObjectId.isValid(coach_id)) return res.status(400).json({res: 'El id del cliente o del coach no es válido'})
 
         const clientExist = await client.exist({_id: client_id})
@@ -16,7 +18,9 @@ const createRoutine = async (req, res) => {
             coach_id,
             days,
             comments,
-            assignment_date: Date.now()
+            assignment_date: Date.now(),
+            start_date: new Date(),
+            end_date: null
         });
 
         res.status(201).json({res: 'Rutina creada correctamente', newRoutine})
@@ -65,12 +69,14 @@ const updateRoutine = async (req, res) => {
         const {id} = req.params
         const {days, comments} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
+
+        if(days.some(day.exercises.length === 0)) return res.status(400).json({res: 'Agregue al menos un ejercicio por día'})
         if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'El id de la rutina no es válido'})
         
 
         const updatedRoutine = await Routine.findByIdAndUpdate(
             id, 
-            {days, comments}, 
+            {days, comments, start_date, end_date}, 
             {new: true, runValidators: true}
         ).populate('days.exercises', 'apiID category name instructions')
 
@@ -89,8 +95,13 @@ const deleteRoutine = async (req, res) => {
     try {
         const {id} = req.params
         if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'El id de la rutina no es válido'})
+        const routine = await Routine.findById(id)
+        if(!routine) return res.status(404).json({res: 'Rutina no encontrada'})
+
         const deletedRoutine = await Routine.findByIdAndDelete(id)
-        if(!deletedRoutine) return res.status(404).json({res: 'Rutina no encontrada'})
+        
+
+            
 
         res.status(200).json({res: 'Rutina eliminada', deletedRoutine})
         

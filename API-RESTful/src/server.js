@@ -6,6 +6,7 @@ import routerCoach from './routers/coach.routes.js';
 import routerClient from './routers/client.routes.js';
 import routerExercises from './routers/exercises.routes.js';
 import routerRoutine from './routers/routine.routes.js';
+import routerProgress from './routers/progress.routes.js';
 import {createServer} from 'http';
 import { getAllExercisesWithDetailsforSave} from './controllers/exercises.controller.js';
 
@@ -37,6 +38,7 @@ app.use('/api/v1', routerCoach);
 app.use('/api/v1', routerClient);
 app.use('/api/v1', routerExercises)
 app.use('/api/v1', routerRoutine);
+app.use('/api/v1', routerProgress);
 
 app.use((_,res) => res.status(404).json({res: "404 - Endpoint not found"}));
 

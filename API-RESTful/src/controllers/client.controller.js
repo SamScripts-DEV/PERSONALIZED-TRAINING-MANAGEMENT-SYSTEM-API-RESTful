@@ -98,7 +98,20 @@ const configureClienProfile = async (req, res) => {
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
 
-        const newClient = new Client({user_id: userID, genre, weight, height, age, levelactivity, days, coach_id})
+        const newClient = new Client({
+            user_id: userID, 
+            genre, 
+            weight, 
+            height, 
+            age, 
+            levelactivity, 
+            days, 
+            coach_id,
+            progress: [{
+                currentWeight: weight,
+                observations: 'Inicio del Perfil'
+            }]
+        })
         await newClient.save()
         res.status(201).json({res: 'Perfil creado correctamente', newClient})
 
@@ -151,7 +164,8 @@ const viewClientProfile = async(req, res) => {
                     height: clientProfile.height,
                     age: clientProfile.age,
                     levelactivity: clientProfile.levelactivity,
-                    days: clientProfile.days
+                    days: clientProfile.days,
+                    progress: clientProfile.progress
                 }
             });
 
