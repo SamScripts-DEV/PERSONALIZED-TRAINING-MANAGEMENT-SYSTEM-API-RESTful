@@ -4,6 +4,7 @@ import generateToken from "../helpers/JWT.js";
 import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
 import Routine from "../models/routine.js";
 import Progress from "../models/progress.js";
+import Coach from "../models/coach.js";
 
 
 const clientRegisterAll = async (req, res) => {
@@ -99,6 +100,13 @@ const configureClienProfile = async (req, res) => {
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
 
+        if(coach_id){
+            const coach = await Coach.findById(coach_id)
+            if(!coach) return res.status(404).json({res: 'El coach no existe'})
+            
+            
+        }
+
         const initialProgress = await Progress.create({
             client_id: userID,
             currentWeight: weight,
@@ -117,6 +125,18 @@ const configureClienProfile = async (req, res) => {
             progress: [initialProgress]
         })
         await newClient.save()
+
+        
+        if(coach_id){
+            const coach = await Coach.findById(coach_id)
+            if(!coach.clientes.includes(newClient._id)){
+                coach.clientes.push(newClient._id)
+                await coach.save()
+            }
+        }
+
+        
+
         res.status(201).json({res: 'Perfil creado correctamente', newClient})
 
 
@@ -178,6 +198,37 @@ const viewClientProfile = async(req, res) => {
         res.status(500).json({res: 'Error en el servidor', error})
         
     }
+};
+
+
+const deleteClient = async (req, res) => {
+    try {
+        const {clientID} = req.params
+
+        const client = await Client.findById(clientID)
+        if(!client) return res.status(404).json({res: 'Cliente no encontrado'})
+
+        const user = await User.findById(Client.user_id)
+        if(user){
+            user.status = false
+            await user.save()
+        }
+
+        if(client.coach_id){
+            const coach = await Coach.findById(client.coach_id)
+            if(coach){
+                coach.clientes = coach.clientes.filter(id => id.toString() !== client._id.toString())
+                await coach.save()
+            }
+        }
+
+        await client.deleteOne()
+        res.status(200).json({res: 'Cliente eliminado correctamente'})
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
 }
 
 
@@ -190,5 +241,6 @@ export{
     confirmEmail,
     configureClienProfile,
     viewRoutineForClient,
-    viewClientProfile
+    viewClientProfile,
+    deleteClient
 }

@@ -5,7 +5,8 @@ import{
     confirmEmail,
     configureClienProfile,
     viewRoutineForClient,
-    viewClientProfile
+    viewClientProfile,
+    deleteClient
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -30,4 +31,8 @@ router.post("/client/configure-profile",verifyAuth, configureClienProfile); //Co
 router.get("/client/view-routine",verifyAuth, viewRoutineForClient); //Muestra la rutina del cliente
 
 router.get("/client/view-profile",verifyAuth, viewClientProfile); //Muestra el perfil del cliente
+
+router.delete("/client/delete/:clientID",verifyAuth, deleteClient); //Elimina al cliente
+
+
 export default router
