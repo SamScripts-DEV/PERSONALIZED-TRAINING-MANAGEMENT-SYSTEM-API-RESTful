@@ -176,40 +176,87 @@ const getClientsByCoach = async (req, res) => {
 
 const getClientByCoachById = async (req, res) => {
     try {
-        const coach_id = req.userBDD._id
-        const {clientID}=req.params
 
-        const clientBDD = await Client.findOne({coach_id, _id: clientID}).populate('user_id', 'name lastname email')
-        if(!clientBDD) return res.status(404).json({res: 'Cliente no encontrado'})
-        
-        res.status(200).json({clientBDD})
+        const userID = req.userBDD._id;
+        const coach = await Coach.findOne({ user_id: userID });
+        if (!coach) {
+            return res.status(404).json({ res: 'Entrenador no encontrado' });
+        }
 
-        
+        const coach_id = coach._id;
+
+        const { clientID } = req.params;
+
+        const clientBDD = await Client.findOne({ coach_id, _id: clientID })
+            .populate('user_id', 'name lastname email') 
+
+        if (!clientBDD) {
+            return res.status(404).json({ res: 'Cliente no encontrado' });
+        }
+
+
+        res.status(200).json({ client: clientBDD });
+
     } catch (error) {
-        console.error(error)
-        res.status(500).json({res: 'Error en el servidor', error})
+
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
     }
 };
 
 
 const viewCoachProfile = async (req, res) => {
     try {
-        const coach_id = req.userBDD._id
+ 
+        const userID = req.userBDD._id;
 
-        const coachProfile = await Coach.findOne({user_id: coach_id})
-            .populate('user_id', 'name lastname email rol')
-            .populate('clientes.client_id', 'name lastname email')
+        const coachProfile = await Coach.findOne({ user_id: userID })
+            .populate('user_id', 'name lastname email rol'); 
 
-        if(!coachProfile) return res.status(404).json({res: 'Entrenador no encontrado'})
+        if (!coachProfile) {
+            return res.status(404).json({ res: 'Entrenador no encontrado' });
+        }
 
-        res.status(200).json(coachProfile)
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({res: 'Error en el servidor', error})
+ 
+        const clientIDs = coachProfile.clientes.map(client => client._id);
+        const clients = await Client.find({ _id: { $in: clientIDs } })
+            .populate('user_id', 'name lastname email') 
+            .populate({
+                path: 'progress', 
+                select: 'start_date currentWeight observations', 
+            });
+
         
-    }
+        res.status(200).json({
+            coach: {
+                name: coachProfile.user_id.name,
+                lastname: coachProfile.user_id.lastname,
+                email: coachProfile.user_id.email,
+                rol: coachProfile.user_id.rol,
+                description: coachProfile.description,
+            },
+            clients: clients.map(client => ({
+                _id: client._id,
+                name: client.user_id.name,
+                lastname: client.user_id.lastname,
+                email: client.user_id.email,
+                genre: client.genre,
+                weight: client.weight,
+                height: client.height,
+                age: client.age,
+                levelactivity: client.levelactivity,
+                days: client.days,
+                progress: client.progress, 
+            })),
+        });
 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
 };
+
+
 
 
 
