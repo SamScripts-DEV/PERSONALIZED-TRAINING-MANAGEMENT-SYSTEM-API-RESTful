@@ -59,29 +59,59 @@ const viewCoachById = async (req, res) => {
 
 
 const updateCoach = async (req, res) => {
-    const {id} = req.params 
-    const {name, lastname, email, description} = req.body
-    if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'Id no válido'})
-    if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
+    const { id } = req.params;
+    const { name, lastname, email, description } = req.body;
+
+    // Validaciones iniciales
+    if (!Types.ObjectId.isValid(id)) return res.status(400).json({ res: 'Id no válido' });
+    if (Object.values(req.body).includes('')) return res.status(400).json({ res: 'Rellene todos los campos' });
 
     try {
-        const coach = await Coach.findById(id)
-        if(!coach) return res.status(404).json({res: 'Entrenador no encontrado'})
-        
-        const updatedCoach = await Coach.findByIdAndUpdate(id, {description}, {new: true})
+        // Buscar el entrenador por ID
+        const coach = await Coach.findById(id);
+        if (!coach) return res.status(404).json({ res: 'Entrenador no encontrado' });
 
-        const updateUser = await User.findByIdAndUpdate(
-            coach.user_id, 
-            {name, lastname, email}, 
-            {new: true}
-        );
-        res.status(200).json({res: 'Entrenador actualizado correctamente', updatedCoach, updateUser})
+        // Actualizar descripción del entrenador
+        const updatedCoach = await Coach.findByIdAndUpdate(
+            id,
+            { description },
+            { new: true }
+        ).select('-__v'); // Excluir la propiedad `__v`
 
+        // Actualizar información del usuario asociado
+        const updatedUser = await User.findByIdAndUpdate(
+            coach.user_id,
+            { name, lastname, email },
+            { new: true }
+        ).select('name lastname email rol status'); // Seleccionar campos específicos
+
+        // Construir respuesta uniforme
+        res.status(200).json({
+            res: 'Entrenador actualizado correctamente',
+            coach: {
+                id: updatedCoach._id,
+                description: updatedCoach.description,
+                clientes: updatedCoach.clientes.map(cliente => ({
+                    id: cliente._id,
+                    assignmentDate: cliente.assignmentDate,
+                })),
+            },
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                lastname: updatedUser.lastname,
+                email: updatedUser.email,
+                rol: updatedUser.rol,
+                status: updatedUser.status,
+                
+            },
+        });
     } catch (error) {
-        console.error(error)
-        res.status(500).json({res: 'Error en el servidor'})
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor' });
     }
 };
+
 
 
 const deleteCoach = async (req, res) => {
@@ -111,19 +141,38 @@ const deleteCoach = async (req, res) => {
 
 const getClientsByCoach = async (req, res) => {
     try {
-        const coachID = req.userBDD._id
+        const userID = req.userBDD._id; 
+        const userRole = req.userBDD.rol;  
+      
+        if (userRole !== 'entrenador') {
+            return res.status(403).json({ res: 'Acceso denegado: solo los entrenadores pueden ver a sus clientes' });
+        }
 
-        const clients = await Client.find({coach_id: coachID}).populate('user_id', 'name lastname email')
-        if(!clients.length) return res.status(404).json({res: 'No hay clientes asignados a este entrenador'})
+        const coach = await Coach.findOne({ user_id: userID });
 
-        res.status(200).json(clients)
+        if (!coach) {
+            return res.status(404).json({ res: 'Entrenador no encontrado' });
+        }
+
+        const coachID = coach._id;
+
+
+        const clients = await Client.find({ coach_id: coachID })
+            .populate('user_id', 'name lastname email')
+            .populate('progress');  
+
+        if (!clients.length) {
+            return res.status(404).json({ res: 'No hay clientes asignados a este entrenador' });
+        }
+        res.status(200).json(clients);
 
     } catch (error) {
-        console.error(error)
-        res.status(500).json({res: 'Error en el servidor', error})
-        
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
     }
 };
+
+
 
 const getClientByCoachById = async (req, res) => {
     try {
