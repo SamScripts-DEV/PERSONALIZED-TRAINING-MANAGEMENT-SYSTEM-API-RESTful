@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import Client from "../models/client.js";
-import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
+import { generateVerificationCode, sendMailToConfirm, sendVerificationMail } from "../config/nodemailer.js";
 import Routine from "../models/routine.js";
 import Progress from "../models/progress.js";
 import Coach from "../models/coach.js";
@@ -58,7 +58,7 @@ const clientRegisterOnly = async (req, res) => {
         
         await newUser.save()
 
-        sendMailToConfirm(newUser.email, verificationCode)
+        sendVerificationMail(newUser.email, verificationCode)
 
         res.status(201).json({res: 'Registro exitoso, confirme su correo para iniciar sesión', newUser})
     } catch (error) {
@@ -66,6 +66,34 @@ const clientRegisterOnly = async (req, res) => {
         return res.status(500).json({res: 'Error en el servidor'})
     }
 };
+
+const resendVerificationCode = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ res: 'El email no está registrado' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ res: 'El correo ya ha sido verificado' });
+        }
+
+        const verificationCode = generateVerificationCode();
+        user.verificationCode = verificationCode;
+        user.codeExpiry = new Date(Date.now() + 10 * 60 * 1000);
+        
+        await user.save();
+        sendVerificationMail(user.email, verificationCode);
+
+        res.status(200).json({ res: 'Código de verificación reenviado' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ res: 'Error en el servidor' });
+    }
+};
+
 
 
 const confirmEmail = async (req, res) => {
@@ -290,5 +318,6 @@ export{
     viewRoutineForClient,
     viewClientProfile,
     deleteClient,
-    viewAllClients
+    viewAllClients,
+    resendVerificationCode
 }

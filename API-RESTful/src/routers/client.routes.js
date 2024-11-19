@@ -7,7 +7,8 @@ import{
     viewRoutineForClient,
     viewClientProfile,
     deleteClient,
-    viewAllClients
+    viewAllClients,
+    resendVerificationCode
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -25,6 +26,8 @@ router.post("/client/register",validateClient, clientRegisterAll);  //Registra a
 router.post("/client/only-register",validateUser, clientRegisterOnly); //Registra al cliente con solo email y password
 
 router.post("/client/confirm-email", confirmEmail); //Confirma el email del cliente
+
+router.post("/client/resend-verification-code", resendVerificationCode); //Reenvia el codigo de verificacion del cliente
 
 //Rutas privadas
 
