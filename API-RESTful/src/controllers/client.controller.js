@@ -1,10 +1,10 @@
 import User from "../models/user.js";
 import Client from "../models/client.js";
-import generateToken from "../helpers/JWT.js";
 import { generateVerificationCode, sendMailToConfirm } from "../config/nodemailer.js";
 import Routine from "../models/routine.js";
 import Progress from "../models/progress.js";
 import Coach from "../models/coach.js";
+
 
 
 const clientRegisterAll = async (req, res) => {
@@ -170,6 +170,10 @@ const viewClientProfile = async(req, res) => {
         const clientProfile = await Client.findOne({user_id: client_id})
             .populate('user_id', 'name lastname email')
             .populate('coach_id', 'user_id')
+            .populate({
+                path: 'progress',
+                select: 'currentWeight observations, start_date',
+            })
 
             if (!clientProfile) return res.status(404).json({ res: 'Perfil de cliente no encontrado' });
 
@@ -201,6 +205,49 @@ const viewClientProfile = async(req, res) => {
 };
 
 
+const viewAllClients = async (req, res) => {
+    try {
+        
+        const clients = await Client.find()
+            .populate('user_id', 'name lastname email') 
+            .populate('coach_id', 'user_id') 
+            .populate({
+                path: 'progress', 
+                select: 'currentWeight observations start_date',
+            });
+
+        if (!clients.length) {
+            return res.status(404).json({ res: 'No hay clientes registrados' });
+        }
+
+        const clientData = clients.map(client => ({
+            client_id: client._id,
+            name: client.user_id.name,
+            lastname: client.user_id.lastname,
+            email: client.user_id.email,
+            coach_id: client.coach_id ? client.coach_id._id : null,
+            coach_name: client.coach_id ? client.coach_id.user_id.name : null,
+            genre: client.genre,
+            weight: client.weight,
+            height: client.height,
+            age: client.age,
+            levelactivity: client.levelactivity,
+            days: client.days,
+            progress: client.progress,
+        }));
+
+        res.status(200).json({
+            res: 'Clientes encontrados',
+            clients: clientData,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
+};
+
+
+
 const deleteClient = async (req, res) => {
     try {
         const {clientID} = req.params
@@ -229,7 +276,7 @@ const deleteClient = async (req, res) => {
         res.status(500).json({res: 'Error en el servidor', error})
         
     }
-}
+};
 
 
 
@@ -242,5 +289,6 @@ export{
     configureClienProfile,
     viewRoutineForClient,
     viewClientProfile,
-    deleteClient
+    deleteClient,
+    viewAllClients
 }

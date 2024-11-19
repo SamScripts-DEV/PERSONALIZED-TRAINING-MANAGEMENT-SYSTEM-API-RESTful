@@ -7,8 +7,14 @@ const verifyAuth = async (req, res, next) => {
     if(!authorization) return res.status(401).json({res: 'Acceso denegado proporciona un token válido'});
 
     try {
-        const {id, rol} = jwt.verify(authorization.split(' ')[1], process.env.JWT_SECRET);
-        req.userBDD = await User.findById(id).lean().select('-password');
+        const { id, rol } = jwt.verify(authorization.split(' ')[1], process.env.JWT_SECRET);
+        const user = await User.findById(id).lean().select('-password');
+
+        if (!user) {
+            return res.status(401).json({ res: 'Usuario no encontrado.' });
+        }
+
+        req.userBDD = { ...user, role: rol }; 
 
         next();
 
