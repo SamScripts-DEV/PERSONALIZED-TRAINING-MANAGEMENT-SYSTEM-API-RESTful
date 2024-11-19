@@ -84,6 +84,8 @@ const getAllExercisesWithDetailsforSave = async() => {
 const viewAllExercises = async(req, res) => {
     try {
         const exercises = await Exercise.find();
+        console.log(exercises);
+        
         res.status(200).json(exercises);
     } catch (error) {
         console.error(error);
