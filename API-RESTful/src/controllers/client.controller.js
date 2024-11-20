@@ -60,37 +60,23 @@ const clientRegisterOnly = async (req, res) => {
 
         sendVerificationMail(newUser.email, verificationCode)
 
+        setTimeout(async () => {
+            try{
+                const userInDb = await User.findById(newUser._id);
+                if(userInDb && !userInDb.confirmEmail){
+                    await User.deleteOne({_id: newUser._id});
+                    console.log(`Usuario ${newUser.email} ha sido eliminado por no verificar su correo, por favor vuelva a registrarse`);
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        }, 3 * 60 * 1000)
+
+
         res.status(201).json({res: 'Registro exitoso, confirme su correo para iniciar sesión', newUser})
     } catch (error) {
         console.error(error)
         return res.status(500).json({res: 'Error en el servidor'})
-    }
-};
-
-const resendVerificationCode = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(400).json({ res: 'El email no está registrado' });
-        }
-
-        if (user.isVerified) {
-            return res.status(400).json({ res: 'El correo ya ha sido verificado' });
-        }
-
-        const verificationCode = generateVerificationCode();
-        user.verificationCode = verificationCode;
-        user.codeExpiry = new Date(Date.now() + 10 * 60 * 1000);
-        
-        await user.save();
-        sendVerificationMail(user.email, verificationCode);
-
-        res.status(200).json({ res: 'Código de verificación reenviado' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ res: 'Error en el servidor' });
     }
 };
 
@@ -128,8 +114,9 @@ const configureClienProfile = async (req, res) => {
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
 
+        let coach = null
         if(coach_id){
-            const coach = await Coach.findById(coach_id)
+            coach = await Coach.findOne({user_id: coach_id})
             if(!coach) return res.status(404).json({res: 'El coach no existe'})
             
             
@@ -155,14 +142,12 @@ const configureClienProfile = async (req, res) => {
         await newClient.save()
 
         
-        if(coach_id){
-            const coach = await Coach.findById(coach_id)
-            if(!coach.clientes.includes(newClient._id)){
-                coach.clientes.push(newClient._id)
-                await coach.save()
-            }
+        
+        if(!coach.clientes.includes(newClient._id)){
+            coach.clientes.push(newClient._id)
+            await coach.save()
         }
-
+        
         
 
         res.status(201).json({res: 'Perfil creado correctamente', newClient})
@@ -318,6 +303,5 @@ export{
     viewRoutineForClient,
     viewClientProfile,
     deleteClient,
-    viewAllClients,
-    resendVerificationCode
+    viewAllClients
 }
