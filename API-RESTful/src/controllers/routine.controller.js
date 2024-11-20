@@ -5,7 +5,7 @@ const createRoutine = async (req, res) => {
         const {client_id, coach_id, days, comments} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
 
-        if(days.some(day.exercises.length === 0)) return res.status(400).json({res: 'Agregue al menos un ejercicio por día'})
+        if(days.some(days.exercises.length === 0)) return res.status(400).json({res: 'Agregue al menos un ejercicio por día'})
 
         if(!Types.ObjectId.isValid(client_id) || !Types.ObjectId.isValid(coach_id)) return res.status(400).json({res: 'El id del cliente o del coach no es válido'})
 
