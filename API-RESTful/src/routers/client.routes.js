@@ -8,6 +8,7 @@ import{
     viewClientProfile,
     deleteClient,
     viewAllClients,
+    updateClientProfile
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -35,6 +36,8 @@ router.get("/client/view-routine",verifyAuth, viewRoutineForClient); //Muestra l
 router.get("/client/view-profile",verifyAuth, viewClientProfile); //Muestra el perfil del cliente
 
 router.get("/client/view-all",verifyAuth,verifyAdminRole, viewAllClients); //Muestra todos los clientes solo para el usuario administrador
+
+router.put("/client/update-profile",verifyAuth, updateClientProfile); //Actualiza el perfil del cliente
 
 router.delete("/client/delete/:clientID",verifyAuth, deleteClient); //Elimina al cliente
 

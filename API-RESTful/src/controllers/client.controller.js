@@ -163,17 +163,29 @@ const configureClienProfile = async (req, res) => {
 
 const viewRoutineForClient = async (req, res) => {
     try {
-        const routine = await Routine.findOne({client_id: req.userBDD._id}).populate('client_id', 'name lastname').populate('coach_id', 'name lastname').populate('days.exercises', 'apiID name category instructions')
-        if(!routine) return res.status(404).json({res: 'No hay rutina asignada'})
+        
+        const userId = req.userBDD._id;
 
-        res.status(200).json({res: 'Rutina encontrada', routine})
         
+        const client = await Client.findOne({ user_id: userId });
+        if (!client) return res.status(404).json({ res: 'Cliente no encontrado' });
+
+        
+        const routine = await Routine.findOne({ client_id: client._id })
+            .populate('client_id', 'name lastname') 
+            .populate('coach_id', 'name lastname') 
+            .populate('days.exercises', 'apiID name category instructions'); 
+
+        if (!routine) return res.status(404).json({ res: 'No hay rutina asignada para este cliente' });
+
+       
+        res.status(200).json({ res: 'Rutina encontrada', routine });
     } catch (error) {
-        console.error(error)
-        res.status(500).json({res: 'Error en el servidor', error})
-        
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
     }
 };
+
 
 
 const viewClientProfile = async(req, res) => {
@@ -293,6 +305,88 @@ const deleteClient = async (req, res) => {
 
 
 
+const updateClientProfile = async (req, res) => {
+    try {
+        const userId = req.userBDD._id; 
+        const {
+            name,
+            lastname,
+            email,
+            genre,
+            weight,
+            height,
+            age,
+            levelactivity,
+            days
+        } = req.body;
+
+       
+        if (
+            !name || !lastname || !email || 
+            !genre || !weight || !height || 
+            !age || !levelactivity || !days || days.length === 0
+        ) {
+            return res.status(400).json({ res: 'Rellene todos los campos obligatorios' });
+        }
+
+      
+        if (!['masculino', 'femenino'].includes(genre)) {
+            return res.status(400).json({ res: 'El género debe ser masculino o femenino' });
+        }
+        if (!['principiante', 'intermedio', 'avanzado'].includes(levelactivity)) {
+            return res.status(400).json({ res: 'El nivel de actividad no es válido' });
+        }
+        if (!days.every(day => ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].includes(day))) {
+            return res.status(400).json({ res: 'Los días de entrenamiento no son válidos' });
+        }
+
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { name, lastname, email },
+            { new: true, runValidators: true }
+        );
+        if (!updatedUser) {
+            return res.status(404).json({ res: 'Usuario no encontrado' });
+        }
+
+        
+        const client = await Client.findOne({ user_id: userId });
+        if (!client) {
+            return res.status(404).json({ res: 'Cliente no encontrado' });
+        }
+
+       
+        const updatedClient = await Client.findByIdAndUpdate(
+            client._id,
+            { genre, weight, height, age, levelactivity, days },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            res: 'Perfil actualizado correctamente',
+            user: {
+                name: updatedUser.name,
+                lastname: updatedUser.lastname,
+                email: updatedUser.email
+            },
+            client: {
+                genre: updatedClient.genre,
+                weight: updatedClient.weight,
+                height: updatedClient.height,
+                age: updatedClient.age,
+                levelactivity: updatedClient.levelactivity,
+                days: updatedClient.days
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
+};
+
+
+
 
 
 export{
@@ -303,5 +397,6 @@ export{
     viewRoutineForClient,
     viewClientProfile,
     deleteClient,
-    viewAllClients
+    viewAllClients,
+    updateClientProfile
 }
