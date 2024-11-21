@@ -45,7 +45,6 @@ const routineSchema = new Schema({
     },
     duration_days:{
         type: Number,
-        required: true
     },
     completed:{
         type: Boolean,
