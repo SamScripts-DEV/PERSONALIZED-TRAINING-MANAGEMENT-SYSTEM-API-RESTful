@@ -22,6 +22,9 @@ const createRoutine = async (req, res) => {
 
         const startDate = new Date(start_date)
         const endDate = new Date(end_date)
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({ res: 'Las fechas deben tener un formato válido' });
+        }
         const durationDays = Math.ceil((endDate - startDate) / (1000 * 3600 * 24))
         if(durationDays < 0) return res.status(400).json({res: 'La fecha de finalización debe ser posterior a la fecha de inicio'})
 
@@ -96,10 +99,28 @@ const viewRoutineById = async (req, res) => {
     try {
         const {id} = req.params
         if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'El id de la rutina no es válido'})
-        const routine = await Routine.findById(id).populate('client_id', 'name').populate('coach_id', 'name').populate('days.exercises', 'apiID category')
+        const routine = await Routine.findById(id).populate('client_id', 'name').populate('coach_id', 'name').populate('days.exercises').lean()
         if(!routine) return res.status(404).json({res: 'Rutina no encontrada'})
 
-        res.status(200).json({res: 'Rutina encontrada', routine})
+        const formattedRoutine = {
+            ...routine,
+            days: routine.days.map(day => ({
+                ...day,
+                exercises: day.exercises.map(exercise => ({
+                    category: exercise.category,
+                    equipment: exercise.equipment,
+                    force: exercise.force,
+                    images: exercise.images, 
+                    instructions: exercise.instructions,
+                    level: exercise.level,
+                    mechanic: exercise.mechanic,
+                    name: exercise.name,
+                    primary: exercise.primary
+                }))
+            }))
+        };
+
+        res.status(200).json({res: 'Rutina encontrada', routine: formattedRoutine})
     } catch (error) {
         console.error(error)
         return res.status(500).json({res: 'Error en el servidor', error})
@@ -110,18 +131,28 @@ const viewRoutineById = async (req, res) => {
 const updateRoutine = async (req, res) => {
     try {
         const {id} = req.params
-        const {days, comments} = req.body
+        const {days, comments, start_date, end_date} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
 
-        if(days.some(day.exercises.length === 0)) return res.status(400).json({res: 'Agregue al menos un ejercicio por día'})
+        if(!Array.isArray(days) || days.length === 0) return res.status(400).json({res: 'Los días deben ser un arreglo de objetos'})
         if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'El id de la rutina no es válido'})
+
+        const startDate = new Date(start_date);
+        const endDate = new Date(end_date);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({ res: 'Las fechas deben tener un formato válido' });
+        }
+        if (startDate >= endDate) {
+            return res.status(400).json({ res: 'La fecha de inicio debe ser anterior a la fecha final' });
+        }
+        const duration_days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
         
 
         const updatedRoutine = await Routine.findByIdAndUpdate(
-            id, 
-            {days, comments, start_date, end_date}, 
-            {new: true, runValidators: true}
-        ).populate('days.exercises', 'apiID category name instructions')
+            id,
+            { days, comments, start_date: startDate, end_date: endDate, duration_days },
+            { new: true, runValidators: true }
+        ).populate('days.exercises', 'category equipment force images instructions level mechanic name primary');
 
         if(!updatedRoutine) return res.status(404).json({res: 'Rutina no encontrada'})
 
