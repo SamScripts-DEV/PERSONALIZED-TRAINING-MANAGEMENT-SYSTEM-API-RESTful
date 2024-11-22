@@ -111,12 +111,14 @@ const configureClienProfile = async (req, res) => {
         const {genre, weight, height, age, levelactivity, days, coach_id} = req.body
         const userID = req.userBDD._id
 
+        if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
+
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
 
         let coach = null
         if(coach_id){
-            coach = await Coach.findOne({user_id: coach_id})
+            coach = await Coach.findOne({_id: coach_id})
             if(!coach) return res.status(404).json({res: 'El coach no existe'})
             
             
