@@ -36,7 +36,7 @@ router.delete('/coach/delete-coach/:id',verifyAuth,verifyAdminRole, deleteCoach)
 router.get('/coach/get-clients',verifyAuth, getClientsByCoach); //Muestra los clientes de un entrenador por id
 router.get('/coach/get-client/:clientID',verifyAuth, getClientByCoachById); //Muestra el detalle de un solo cliente
 
-router.get('/coach/get-clients/:coachID',verifyAuth, getClientsByCoachId); //Muestra los clientes de un entrenador por id
+router.get('/coach/get-clients/:coachID',verifyAuth, getClientsByCoachId); //Muestra los clientes de un entrenador por el ID del entrenador
 
 router.get('/coach/view-profile',verifyAuth, viewCoachProfile); //Muestra el perfil del entrenador
 

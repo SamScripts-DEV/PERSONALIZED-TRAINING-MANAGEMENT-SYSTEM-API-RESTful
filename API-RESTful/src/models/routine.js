@@ -32,6 +32,11 @@ const routineSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    nameRoutine:{
+        type: String,
+        required : true,
+        trim: true
+    },
     comments:{
         type: String
     },

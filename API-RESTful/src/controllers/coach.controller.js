@@ -174,35 +174,30 @@ const getClientsByCoach = async (req, res) => {
 
 const getClientsByCoachId = async (req, res) => {
     try {
-        const { coachId } = req.params; 
+        const { coachID } = req.params;
 
-        
-        if (!Types.ObjectId.isValid(coachId)) {
+        if (!Types.ObjectId.isValid(coachID)) {
             return res.status(400).json({ res: 'ID de entrenador no válido' });
         }
 
-        
-        const coach = await Coach.findById(coachId);
+        const coach = await Coach.findById(coachID);
         if (!coach) {
             return res.status(404).json({ res: 'Entrenador no encontrado' });
         }
 
-        
         const clients = await Client.find({ coach_id: coach._id })
-            .populate('user_id', 'name lastname email') 
+            .populate('user_id', 'name lastname email status')
             .populate('progress');
 
         if (!clients.length) {
             return res.status(404).json({ res: 'No hay clientes asignados a este entrenador' });
         }
 
-        
         res.status(200).json({ res: 'Clientes encontrados', clients });
-
     } catch (error) {
         console.error(error);
-        res.status(500).json({ res: 'Error en el servidor', error });
-    }
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
 };
 
 

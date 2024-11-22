@@ -6,7 +6,7 @@ import Coach from "../models/coach.js";
 
 const createRoutine = async (req, res) => {
     try {
-        const {client_id, days, comments, start_date, end_date} = req.body
+        const {client_id, days, comments, start_date, end_date, nameRoutine} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
 
         if(!Array.isArray(days) || days.length === 0) return res.status(400).json({res: 'Los días deben ser un arreglo de objetos'})
@@ -34,6 +34,7 @@ const createRoutine = async (req, res) => {
             coach_id,
             days,
             comments,
+            nameRoutine,
             assignment_date: Date.now(),
             start_date: startDate,
             end_date: endDate,
@@ -70,13 +71,14 @@ const viewAllRoutines = async (req, res) => {
         const formattedRoutines = routines.map(routine => {
             return {
                 ...routine,
+                nameRoutine: routine.nameRoutine,
                 days: routine.days.map(day => ({
                     ...day,
                     exercises: day.exercises.map(exercise => ({
                         category: exercise.category,
                         equipment: exercise.equipment,
                         force: exercise.force,
-                        images: exercise.images, // array con info dentro
+                        images: exercise.images, 
                         instructions: exercise.instructions,
                         level: exercise.level,
                         mechanic: exercise.mechanic,
@@ -105,6 +107,7 @@ const viewRoutineById = async (req, res) => {
 
         const formattedRoutine = {
             ...routine,
+            nameRoutine: routine.nameRoutine,
             days: routine.days.map(day => ({
                 ...day,
                 exercises: day.exercises.map(exercise => ({
@@ -132,7 +135,7 @@ const viewRoutineById = async (req, res) => {
 const updateRoutine = async (req, res) => {
     try {
         const {id} = req.params
-        const {days, comments, start_date, end_date} = req.body
+        const {days, comments, start_date, end_date, nameRoutine} = req.body
         if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos antes de enviar la solicitud'})
 
         if(!Array.isArray(days) || days.length === 0) return res.status(400).json({res: 'Los días deben ser un arreglo de objetos'})
@@ -151,7 +154,7 @@ const updateRoutine = async (req, res) => {
 
         const updatedRoutine = await Routine.findByIdAndUpdate(
             id,
-            { days, comments, start_date: startDate, end_date: endDate, duration_days },
+            { days, comments, nameRoutine, start_date: startDate, end_date: endDate, duration_days },
             { new: true, runValidators: true }
         ).populate('days.exercises', 'category equipment force images instructions level mechanic name primary');
 
@@ -212,6 +215,7 @@ const viewRoutinesByClientId = async (req, res) => {
         
         const formattedRoutines = routines.map(routine => ({
             ...routine,
+            nameRoutine: routine.nameRoutine,
             days: routine.days.map(day => ({
                 ...day,
                 exercises: day.exercises.map(exercise => ({
