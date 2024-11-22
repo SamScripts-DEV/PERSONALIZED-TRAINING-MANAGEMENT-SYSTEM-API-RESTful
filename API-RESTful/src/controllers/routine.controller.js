@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import Client from "../models/client.js";
 import Coach from "../models/coach.js";
 
+
 const createRoutine = async (req, res) => {
     try {
         const {client_id, days, comments, start_date, end_date} = req.body
@@ -186,10 +187,60 @@ const deleteRoutine = async (req, res) => {
     }
 };
 
+
+const viewRoutinesByClientId = async (req, res) => {
+    try {
+        const { clientId } = req.params;
+
+       
+        if (!Types.ObjectId.isValid(clientId)) {
+            return res.status(400).json({ res: 'El ID del cliente no es válido' });
+        }
+
+        // Buscar las rutinas del cliente
+        const routines = await Routine.find({ client_id: clientId })
+            .populate('client_id', 'name lastname')
+            .populate('coach_id', 'name lastname')
+            .populate('days.exercises')
+            .lean();
+
+        
+        if (!routines || routines.length === 0) {
+            return res.status(404).json({ res: 'No hay rutinas encontradas para este cliente' });
+        }
+
+        
+        const formattedRoutines = routines.map(routine => ({
+            ...routine,
+            days: routine.days.map(day => ({
+                ...day,
+                exercises: day.exercises.map(exercise => ({
+                    category: exercise.category,
+                    equipment: exercise.equipment,
+                    force: exercise.force,
+                    images: exercise.images, 
+                    instructions: exercise.instructions,
+                    level: exercise.level,
+                    mechanic: exercise.mechanic,
+                    name: exercise.name,
+                    primary: exercise.primary
+                }))
+            }))
+        }));
+
+        
+        res.status(200).json({ res: 'Rutinas encontradas', routines: formattedRoutines });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ res: 'Error en el servidor', error });
+    }
+};
+
 export{
     createRoutine,
     viewAllRoutines,
     viewRoutineById,
     updateRoutine,
-    deleteRoutine
+    deleteRoutine,
+    viewRoutinesByClientId
 }

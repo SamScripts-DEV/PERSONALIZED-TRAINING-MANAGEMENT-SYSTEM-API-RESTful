@@ -389,6 +389,12 @@ const updateClientProfile = async (req, res) => {
 
 
 
+
+
+
+
+
+
 export{
     clientRegisterAll,
     clientRegisterOnly,

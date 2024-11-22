@@ -8,7 +8,8 @@ import{
     viewClientProfile,
     deleteClient,
     viewAllClients,
-    updateClientProfile
+    updateClientProfile,
+
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -40,6 +41,8 @@ router.get("/client/view-all",verifyAuth,verifyAdminRole, viewAllClients); //Mue
 router.put("/client/update-profile",verifyAuth, updateClientProfile); //Actualiza el perfil del cliente
 
 router.delete("/client/delete/:clientID",verifyAuth, deleteClient); //Elimina al cliente
+
+
 
 
 export default router
