@@ -11,9 +11,15 @@ import {
 } from "../controllers/coach.controller.js";
 import verifyAuth from "../middlewares/auth.js";
 import verifyAdminRole from "../middlewares/verifyAdminRol.js";
+import Chat from "../models/chat.js";
 
 
 const router = Router();
+
+
+router.get("/chats", async (_, res) => {
+    res.status(200).json(await Chat.find());
+});
 
 //Public routes
 
