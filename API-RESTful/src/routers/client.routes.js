@@ -9,6 +9,7 @@ import{
     deleteClient,
     viewAllClients,
     updateClientProfile,
+    getTrainingReminders
 
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
@@ -42,6 +43,8 @@ router.put("/client/update-profile",verifyAuth, updateClientProfile); //Actualiz
 
 router.delete("/client/delete/:clientID",verifyAuth, deleteClient); //Elimina al cliente
 
+
+router.get("/reminders",verifyAuth, getTrainingReminders); //Devuelve los días de entrenamiento del cliente
 
 
 

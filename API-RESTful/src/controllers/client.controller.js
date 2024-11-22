@@ -389,6 +389,23 @@ const updateClientProfile = async (req, res) => {
 };
 
 
+const getTrainingReminders = async (req, res) =>{
+    try {
+        const userID = req.userBDD._id
+
+        const client = await Client.findOne({user_id: userID})
+        if(!client) return res.status(404).json({res: 'Cliente no encontrado'})
+
+        res.status(200).json({res: 'Dias de entrenamiento obtenidos', days: client.days})
+        
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+        
+    }
+}
+
+
 
 
 
@@ -407,5 +424,6 @@ export{
     viewClientProfile,
     deleteClient,
     viewAllClients,
-    updateClientProfile
+    updateClientProfile,
+    getTrainingReminders
 }
