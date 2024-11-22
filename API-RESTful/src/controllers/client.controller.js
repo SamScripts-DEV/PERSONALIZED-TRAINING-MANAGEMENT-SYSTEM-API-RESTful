@@ -236,7 +236,7 @@ const viewAllClients = async (req, res) => {
     try {
         
         const clients = await Client.find()
-            .populate('user_id', 'name lastname email') 
+            .populate('user_id', 'name lastname email status') 
             .populate('coach_id', 'user_id') 
             .populate({
                 path: 'progress', 
@@ -258,6 +258,7 @@ const viewAllClients = async (req, res) => {
             weight: client.weight,
             height: client.height,
             age: client.age,
+            status: client.user_id.status,
             levelactivity: client.levelactivity,
             days: client.days,
             progress: client.progress,

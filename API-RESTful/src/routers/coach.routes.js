@@ -7,7 +7,8 @@ import {
     deleteCoach,
     getClientsByCoach,
     getClientByCoachById,
-    viewCoachProfile
+    viewCoachProfile,
+    getClientsByCoachId
 } from "../controllers/coach.controller.js";
 import verifyAuth from "../middlewares/auth.js";
 import verifyAdminRole from "../middlewares/verifyAdminRol.js";
@@ -34,6 +35,9 @@ router.delete('/coach/delete-coach/:id',verifyAuth,verifyAdminRole, deleteCoach)
 
 router.get('/coach/get-clients',verifyAuth, getClientsByCoach); //Muestra los clientes de un entrenador por id
 router.get('/coach/get-client/:clientID',verifyAuth, getClientByCoachById); //Muestra el detalle de un solo cliente
+
+router.get('/coach/get-clients/:coachID',verifyAuth, getClientsByCoachId); //Muestra los clientes de un entrenador por id
+
 router.get('/coach/view-profile',verifyAuth, viewCoachProfile); //Muestra el perfil del entrenador
 
 
