@@ -9,7 +9,7 @@ import routerRoutine from './routers/routine.routes.js';
 import routerProgress from './routers/progress.routes.js';
 import {createServer} from 'http';
 import { getAllExercisesWithDetailsforSave} from './controllers/exercises.controller.js';
-import { startCronJob } from './utils/cronJobs.js';
+
 
 //Inicializamos
 const app = express();
@@ -43,6 +43,7 @@ app.use('/api/v1', routerProgress);
 
 app.use((_,res) => res.status(404).json({res: "404 - Endpoint not found"}));
 
-startCronJob();
+
+
 const server = createServer(app);
 export default server;
