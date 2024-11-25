@@ -36,7 +36,7 @@ const coachRegister = async (req, res) => {
 
 const viewCoaches = async (req, res) => {
     try {
-        const coaches = await Coach.find().populate('user_id', 'name lastname email')
+        const coaches = await Coach.find().populate('user_id', 'name lastname email status')
         res.status(200).json(coaches)
     } catch (error) {
         console.error(error)
@@ -47,7 +47,7 @@ const viewCoaches = async (req, res) => {
 const viewCoachById = async (req, res) => {
     const { id } = req.params
     try {
-        const coach = await Coach.findById(id).populate('user_id', 'name lastname email')
+        const coach = await Coach.findById(id).populate('user_id', 'name lastname email status')
         res.status(200).json(coach)
 
         if (!coach) return res.status(404).json({ res: 'Entrenador no encontrado' })

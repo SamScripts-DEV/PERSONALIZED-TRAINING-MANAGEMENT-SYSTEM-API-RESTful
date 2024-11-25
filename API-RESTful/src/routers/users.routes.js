@@ -23,6 +23,6 @@ router.post('/users/new-password/:token', newPassword);//Cambia la contraseña u
 
 
 //Private routes
-router.put('/users/update-password', verifyAuth, updatePassword); //Actualiza la contraseña una vez proporcionado el token en los headers
+router.put('/users/update-password:token', verifyAuth, updatePassword); //Actualiza la contraseña una vez proporcionado el token en los headers
 
 export default router;
