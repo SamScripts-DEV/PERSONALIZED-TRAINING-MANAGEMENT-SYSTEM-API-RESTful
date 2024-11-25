@@ -9,51 +9,51 @@ import Client from "../models/client.js";
 
 const coachRegister = async (req, res) => {
     try {
-        const {name, lastname, email, description} = req.body 
-        const verifyEmailBDD = await User.findOne({email}) 
-        if(verifyEmailBDD) return res.status(400).json({res: 'El email ya se encuentra registrado'})
+        const { name, lastname, email, description } = req.body
+        const verifyEmailBDD = await User.findOne({ email })
+        if (verifyEmailBDD) return res.status(400).json({ res: 'El email ya se encuentra registrado' })
 
-        const newUser = new User({name, lastname, email, rol: 'entrenador'})
+        const newUser = new User({ name, lastname, email, rol: 'entrenador' })
         console.log(newUser);
         const password = `RutinFit${Math.random().toString(36).slice(2)}`
         newUser.password = await newUser.encryptPassword(password)
 
         await newUser.save()
-       
+
         await sendMailToCoach(email, password, name)
 
-        const newCoach = new Coach({user_id: newUser._id, description})
+        const newCoach = new Coach({ user_id: newUser._id, description })
         await newCoach.save()
         console.log(newCoach);
-        
-        res.status(201).json({res: "Entrenador registrado correctamente", newUser, newCoach})
+
+        res.status(201).json({ res: "Entrenador registrado correctamente", newUser, newCoach })
     } catch (error) {
         console.error(error)
-        return res.status(500).json({res: 'Error en el servidor', error})
-        
+        return res.status(500).json({ res: 'Error en el servidor', error })
+
     }
 };
 
-const viewCoaches = async (req,res) => {
+const viewCoaches = async (req, res) => {
     try {
         const coaches = await Coach.find().populate('user_id', 'name lastname email')
         res.status(200).json(coaches)
     } catch (error) {
         console.error(error)
-        return res.status(500).json({res: 'Error en el servidor'})
+        return res.status(500).json({ res: 'Error en el servidor' })
     }
 };
 
 const viewCoachById = async (req, res) => {
-    const {id}  = req.params 
+    const { id } = req.params
     try {
         const coach = await Coach.findById(id).populate('user_id', 'name lastname email')
         res.status(200).json(coach)
 
-        if(!coach) return res.status(404).json({res: 'Entrenador no encontrado'})
+        if (!coach) return res.status(404).json({ res: 'Entrenador no encontrado' })
     } catch (error) {
         console.error(error)
-        return res.status(500).json({res: 'Error en el servidor'})
+        return res.status(500).json({ res: 'Error en el servidor' })
     }
 };
 
@@ -103,7 +103,7 @@ const updateCoach = async (req, res) => {
                 email: updatedUser.email,
                 rol: updatedUser.rol,
                 status: updatedUser.status,
-                
+
             },
         });
     } catch (error) {
@@ -116,34 +116,34 @@ const updateCoach = async (req, res) => {
 
 const deleteCoach = async (req, res) => {
     try {
-        const {id} = req.params 
-        if(!Types.ObjectId.isValid(id)) return res.status(400).json({res: 'Id no válido'})
+        const { id } = req.params
+        if (!Types.ObjectId.isValid(id)) return res.status(400).json({ res: 'Id no válido' })
 
         console.log(id);
 
-        const coach = await Coach.findOne({_id: id})
-        if(!coach) return res.status(404).json({res: 'Entrenador no encontrado'})
+        const coach = await Coach.findOne({ _id: id })
+        if (!coach) return res.status(404).json({ res: 'Entrenador no encontrado' })
 
-        const {user_id} = coach
+        const { user_id } = coach
         const user = await User.findById(user_id)
 
-        if(!user) return res.status(404).json({res: 'Usuario no encontrado'})
+        if (!user) return res.status(404).json({ res: 'Usuario no encontrado' })
         await Coach.findByIdAndDelete(id)
         await User.findByIdAndDelete(user_id)
-        
-        res.status(200).json({res: 'Entrenador eliminado correctamente'})
+
+        res.status(200).json({ res: 'Entrenador eliminado correctamente' })
 
     } catch (error) {
-        res.status(500).json({res: 'Error en el servidor', error})
-        
+        res.status(500).json({ res: 'Error en el servidor', error })
+
     }
 };
 
 const getClientsByCoach = async (req, res) => {
     try {
-        const userID = req.userBDD._id; 
-        const userRole = req.userBDD.rol;  
-      
+        const userID = req.userBDD._id;
+        const userRole = req.userBDD.rol;
+
         if (userRole !== 'entrenador') {
             return res.status(403).json({ res: 'Acceso denegado: solo los entrenadores pueden ver a sus clientes' });
         }
@@ -158,8 +158,8 @@ const getClientsByCoach = async (req, res) => {
 
 
         const clients = await Client.find({ coach_id: coachID })
-            .populate('user_id', 'name lastname email')
-            .populate('progress');  
+            .populate('user_id', 'name lastname email status')
+            .populate('progress');
 
         if (!clients.length) {
             return res.status(404).json({ res: 'No hay clientes asignados a este entrenador' });
@@ -196,8 +196,8 @@ const getClientsByCoachId = async (req, res) => {
         res.status(200).json({ res: 'Clientes encontrados', clients });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ res: 'Error en el servidor', error });
-    }
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
 };
 
 
@@ -217,7 +217,7 @@ const getClientByCoachById = async (req, res) => {
         const { clientID } = req.params;
 
         const clientBDD = await Client.findOne({ coach_id, _id: clientID })
-            .populate('user_id', 'name lastname email') 
+            .populate('user_id', 'name lastname email status')
 
         if (!clientBDD) {
             return res.status(404).json({ res: 'Cliente no encontrado' });
@@ -236,26 +236,26 @@ const getClientByCoachById = async (req, res) => {
 
 const viewCoachProfile = async (req, res) => {
     try {
- 
+
         const userID = req.userBDD._id;
 
         const coachProfile = await Coach.findOne({ user_id: userID })
-            .populate('user_id', 'name lastname email rol'); 
+            .populate('user_id', 'name lastname email rol');
 
         if (!coachProfile) {
             return res.status(404).json({ res: 'Entrenador no encontrado' });
         }
 
- 
+
         const clientIDs = coachProfile.clientes.map(client => client._id);
         const clients = await Client.find({ _id: { $in: clientIDs } })
-            .populate('user_id', 'name lastname email') 
+            .populate('user_id', 'name lastname email')
             .populate({
-                path: 'progress', 
-                select: 'start_date currentWeight observations', 
+                path: 'progress',
+                select: 'start_date currentWeight observations',
             });
 
-        
+
         res.status(200).json({
             coach: {
                 name: coachProfile.user_id.name,
@@ -275,7 +275,7 @@ const viewCoachProfile = async (req, res) => {
                 age: client.age,
                 levelactivity: client.levelactivity,
                 days: client.days,
-                progress: client.progress, 
+                progress: client.progress,
             })),
         });
 
