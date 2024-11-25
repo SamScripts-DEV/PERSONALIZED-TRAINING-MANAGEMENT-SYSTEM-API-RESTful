@@ -95,9 +95,9 @@ const confirmTokenPassword = async (req, res) => {
 };
 
 const newPassword = async (req, res) => {
-    const {password, newpassword}= req.body
+    const {password, confirmpassword}= req.body
     if(Object.values(req.body).includes('')) return res.status(400).json({res: 'Rellene todos los campos'})
-    if(password !== newpassword) return res.status(400).json({res: 'Las contraseñas no coinciden'})
+    if(password !== confirmpassword) return res.status(400).json({res: 'Las contraseñas no coinciden'})
         
     const userBDD = await User.findOne({token: req.params.token})
     

@@ -19,9 +19,8 @@ const verifyAuth = async (req, res, next) => {
         next();
 
     } catch (error) {
-        const e = new Error('Token no válido o expirado, comuníquese con soporte')
         console.error(error);
-        return res.status(401).json({res: e})
+        return res.status(401).json({res: 'Acceso denegado, token inválido o expirado, comuniquese con el soporte.'});
         
     }
 }

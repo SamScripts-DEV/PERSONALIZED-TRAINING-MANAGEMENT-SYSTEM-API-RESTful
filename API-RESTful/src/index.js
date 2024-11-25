@@ -4,11 +4,11 @@ import messaging from './config/messaging.js';
 import { startCronJob } from './utils/cronJobs.js';
 
 connection();
-
 messaging();
-startCronJob(server);
+
 
 server.listen(process.env.PORT || 3000, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${process.env.PORT || 3000}`);
+    startCronJob(server);
 });
      
