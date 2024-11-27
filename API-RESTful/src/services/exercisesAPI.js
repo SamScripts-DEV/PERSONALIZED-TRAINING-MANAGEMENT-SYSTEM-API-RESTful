@@ -5,25 +5,24 @@ const fetchallexercises = async() => {
 
     const options = {
         method: 'GET',
-        url: 'https://exercise-db-fitness-workout-gym.p.rapidapi.com/exercises',
+        url: 'https://exercisedb.p.rapidapi.com/exercises',
+        params: {
+          limit: '100',
+          offset: '0'
+        },
         headers: {
-            'x-rapidapi-key': process.env.API_KEY,
-            'x-rapidapi-host': process.env.API_HOST
+          'x-rapidapi-key': process.env.API_KEY,
+          'x-rapidapi-host': process.env.API_HOST
         }
-    }
-
-    try {
-        const response = await axios.request(options);
-        const exercisesIDs = response.data.excercises_ids.slice(0, 100)
-        
-        
-        return exercisesIDs;
-        
-        
-       
-    } catch (error) {
-        console.error(error);
-    }
+      };
+      
+      try {
+          const response = await axios.request(options);
+          //console.log(response.data);
+          return response.data;
+      } catch (error) {
+          console.error(error);
+      }
 };
 
 const fetchExcercisesByID = async(id) => {
@@ -44,6 +43,9 @@ const fetchExcercisesByID = async(id) => {
             console.error(`Error al conseguir detalles del ejercicio ${id}`,error);
         }
 };
+
+
+
 
 
 

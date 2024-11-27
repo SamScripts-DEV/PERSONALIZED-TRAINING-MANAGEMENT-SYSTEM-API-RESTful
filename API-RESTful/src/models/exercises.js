@@ -1,17 +1,14 @@
 import { Schema, model } from "mongoose";
 
 const exerciseSchema = new Schema({
-    apiID: { type: String, unique: true },
-    category: String,
-    equipment: String,
-    force: String,
-    images: [String],
-    instructions: [String],
-    level: String,
-    mechanic: String,  
-    name: String,
-    primaryMuscles: [String],  
-    secondaryMuscles: [String],  
+    bodyPart: { type: String, required: true }, 
+    equipment: { type: String, required: true }, 
+    gifUrl: { type: String, required: true }, 
+    idApi: { type: String }, 
+    name: { type: String, required: true }, 
+    target: { type: String, required: true }, 
+    secondaryMuscles: { type: [String] }, 
+    instructions: { type: [String] }, 
 });
 
 export default model("Exercise", exerciseSchema);

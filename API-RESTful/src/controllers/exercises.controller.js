@@ -5,10 +5,34 @@ import Exercise from "../models/exercises.js";
 const allExercises = async(req, res) => {
     try {
         const exercises = await fetchallexercises();
+        console.log(exercises);
+        
         res.status(200).json(exercises);
     } catch (error) {
         console.error(error);
         res.status(500).json({res:"Error en el servidor"});
+        
+    }
+};
+
+const syncExercisesOnStart = async() => {
+    try {
+        const exercises = await fetchallexercises();
+        console.log(exercises);
+
+        for (const exercise of exercises) {
+            await Exercise.findOneAndUpdate(
+                {name: exercise.name},
+                {...exercise},
+                {upsert: true, new: true}
+            )
+
+        }
+            
+        
+    } catch (error) {
+        console.error(error);
+        
         
     }
 };
@@ -110,6 +134,7 @@ const viewAllExercisesByID = async(req, res) => {
 
 export{
     allExercises,
+    syncExercisesOnStart,
     exercisesByID,
     getAllExercisesWithDetails,
     getAllExercisesWithDetailsforSave,

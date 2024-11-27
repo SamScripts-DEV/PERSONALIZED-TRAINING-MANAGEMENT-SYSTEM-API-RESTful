@@ -8,7 +8,7 @@ import routerExercises from './routers/exercises.routes.js';
 import routerRoutine from './routers/routine.routes.js';
 import routerProgress from './routers/progress.routes.js';
 import {createServer} from 'http';
-import { getAllExercisesWithDetailsforSave} from './controllers/exercises.controller.js';
+import { syncExercisesOnStart} from './controllers/exercises.controller.js';
 
 
 //Inicializamos
@@ -32,7 +32,8 @@ app.get('/', (_, res) => {
     res.send('Server running');
 });
 
-//getAllExercisesWithDetailsforSave()
+//syncExercisesOnStart();
+
 
 app.use('/api/v1', routerUsers);
 app.use('/api/v1', routerCoach);

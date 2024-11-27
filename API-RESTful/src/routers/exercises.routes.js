@@ -14,7 +14,7 @@ router.get('/exercises/details/all', getAllExercisesWithDetails)//Muestra todos 
 
 
 //Endpoints que obtiene de la base de datos del sistema
-router.get('/view-exercises', verifyAuth, viewAllExercises) //Muestra todos los ejercicios guardados en la base de datos del sistema
+router.get('/view-exercises', viewAllExercises) //Muestra todos los ejercicios guardados en la base de datos del sistema
 router.get('/view-exercises/:id', verifyAuth, viewAllExercisesByID) //Muestra un ejercicio en específico por su ID guardados en la base de datos del sistema
 
 export default router;
