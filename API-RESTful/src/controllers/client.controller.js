@@ -176,7 +176,7 @@ const viewRoutineForClient = async (req, res) => {
         const routine = await Routine.findOne({ client_id: client._id })
             .populate('client_id', 'name lastname') 
             .populate('coach_id', 'name lastname') 
-            .populate('days.exercises', 'apiID name category equipment force images level primaryMuscles instructions'); 
+            .populate('days.exercises', '-__v'); 
 
         if (!routine) return res.status(404).json({ res: 'No hay rutina asignada para este cliente' });
 
