@@ -16,7 +16,7 @@ import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
 import { validateUser } from "../middlewares/users.validation.js";
 import verifyAdminRole from "../middlewares/verifyAdminRol.js";
-
+import { markDaysAsCompleted , viewCompletedDays } from "../controllers/completed_days.controller.js";
 const router = Router();
 
 
@@ -34,6 +34,10 @@ router.post("/client/confirm-email", confirmEmail); //Confirma el email del clie
 router.post("/client/configure-profile",verifyAuth, configureClienProfile); //Configura el perfil del cliente
 
 router.get("/client/view-routine",verifyAuth, viewRoutineForClient); //Muestra la rutina del cliente
+
+router.post("/client/mark-day-completed", verifyAuth, markDaysAsCompleted); //Marcar un dia como completado
+
+router.get("/client/view-completed-days", verifyAuth, viewCompletedDays); //Muestra los dias completados del cliente
 
 router.get("/client/view-profile",verifyAuth, viewClientProfile); //Muestra el perfil del cliente
 
