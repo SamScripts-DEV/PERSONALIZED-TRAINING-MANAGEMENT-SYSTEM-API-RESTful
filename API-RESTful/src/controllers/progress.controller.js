@@ -1,5 +1,6 @@
 import Client from "../models/client.js";
 import Progress from "../models/progress.js";
+import {Types} from 'mongoose'
 
 
 const createProgress = async (req, res) => {
