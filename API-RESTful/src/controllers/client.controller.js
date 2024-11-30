@@ -115,19 +115,14 @@ const configureClienProfile = async (req, res) => {
 
         const existingProfile = await Client.findOne({user_id: userID})
         if(existingProfile) return res.status(400).json({res: 'El perfil ya ha sido creado'})
-
+            
         let coach = null
         if(coach_id){
             coach = await Coach.findOne({_id: coach_id})
             if(!coach) return res.status(404).json({res: 'El coach no existe'})
-        }
-
-        const initialProgress = await Progress.create({
-            client_id: existingProfile._id,
-            currentWeight: weight,
-            observations: 'Inicio del Perfil'
-        })
-
+            }
+        
+        console.log(existingProfile);
         const newClient = new Client({
             user_id: userID, 
             genre, 
@@ -137,8 +132,16 @@ const configureClienProfile = async (req, res) => {
             levelactivity, 
             days, 
             coach_id,
-            progress: [initialProgress]
+            progress: []
         })
+
+        const initialProgress = await Progress.create({
+            client_id: newClient._id,
+            currentWeight: weight,
+            observations: 'Inicio del Perfil'
+        })
+        newClient.progress.push(initialProgress)
+
         await newClient.save()
 
         
