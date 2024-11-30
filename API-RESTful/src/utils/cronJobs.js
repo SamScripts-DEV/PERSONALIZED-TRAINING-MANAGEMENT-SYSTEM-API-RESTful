@@ -1,15 +1,10 @@
 import cron from "node-cron";
-import { Server } from "socket.io";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Client from "../models/client.js";
+import { io } from "../config/messaging.js";
 
 export const startCronJob = (server) => {
-  const io = new Server(server, {
-    cors: {
-      origin: "*",
-    },
-  });
   const checkTrainingReminders = async () => {
     try {
       const today = format(new Date(), "EEEE", { locale: es }).toLowerCase();

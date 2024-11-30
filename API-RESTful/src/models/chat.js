@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Types } from "mongoose";
 
 const chatSchema = new Schema({
     message:{
@@ -6,11 +7,17 @@ const chatSchema = new Schema({
         required:true,
         trim: true,
     },
-    trasnmitter:{
+    transmitter:{
         type:String,
         required:true,
         trim: true,
     },
+    receiver:{
+        type:String,
+        required:true,
+        trim: true,
+    },
+
     name:{
         type:String,
         required:true,
@@ -20,6 +27,14 @@ const chatSchema = new Schema({
         type:String,
         required:true,
         trim: true,
+    },
+    client_id:{
+        type: Types.ObjectId,
+        ref: 'Client'
+    },
+    coach_id:{
+        type: Types.ObjectId,
+        ref: 'Coach'
     },
 
 },{timestamps:true});
