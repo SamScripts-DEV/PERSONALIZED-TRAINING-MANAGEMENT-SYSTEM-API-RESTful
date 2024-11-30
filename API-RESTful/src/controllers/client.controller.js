@@ -120,12 +120,10 @@ const configureClienProfile = async (req, res) => {
         if(coach_id){
             coach = await Coach.findOne({_id: coach_id})
             if(!coach) return res.status(404).json({res: 'El coach no existe'})
-            
-            
         }
 
         const initialProgress = await Progress.create({
-            client_id: userID,
+            client_id: existingProfile._id,
             currentWeight: weight,
             observations: 'Inicio del Perfil'
         })

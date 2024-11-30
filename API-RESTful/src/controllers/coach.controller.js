@@ -285,10 +285,30 @@ const viewCoachProfile = async (req, res) => {
     }
 };
 
+const updateCoachProfile = async (req, res) => {
+    try {
+        const userID = req.userBDD._id;
+        const coach = await Coach.findOne({ user_id: userID });
 
+        if (!coach) {
+            return res.status(404).json({ res: 'Entrenador no encontrado' });
+        }
 
+        const { description } = req.body;
 
+        const updatedCoach = await Coach.findByIdAndUpdate(
+            coach._id,
+            { description },
+            { new: true }
+        );
 
+        res.status(200).json({ res: 'Perfil de entrenador actualizado correctamente', updatedCoach });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
+};
 
 
 export {
@@ -300,5 +320,6 @@ export {
     getClientsByCoach,
     getClientByCoachById,
     viewCoachProfile,
-    getClientsByCoachId
+    getClientsByCoachId,
+    updateCoachProfile
 }

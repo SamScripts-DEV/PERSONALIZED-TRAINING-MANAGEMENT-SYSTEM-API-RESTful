@@ -8,7 +8,8 @@ import {
     getClientsByCoach,
     getClientByCoachById,
     viewCoachProfile,
-    getClientsByCoachId
+    getClientsByCoachId,
+    updateCoachProfile
 } from "../controllers/coach.controller.js";
 import verifyAuth from "../middlewares/auth.js";
 import verifyAdminRole from "../middlewares/verifyAdminRol.js";
@@ -42,6 +43,9 @@ router.get('/coach/get-client/:clientID',verifyAuth, getClientByCoachById); //Mu
 router.get('/coach/get-clients/:coachID',verifyAuth, getClientsByCoachId); //Muestra los clientes de un entrenador por el ID del entrenador
 
 router.get('/coach/view-profile',verifyAuth, viewCoachProfile); //Muestra el perfil del entrenador
+
+router.put('/coach/update-profile',verifyAuth, updateCoachProfile); //Actualiza el perfil del entrenador
+
 
 
 
