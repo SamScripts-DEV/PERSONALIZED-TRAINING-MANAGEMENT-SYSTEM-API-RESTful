@@ -47,8 +47,4 @@ router.get('/coach/view-profile',verifyAuth, viewCoachProfile); //Muestra el per
 router.put('/coach/update-profile',verifyAuth, updateCoachProfile); //Actualiza el perfil del entrenador
 
 
-
-
-
-
 export default router;

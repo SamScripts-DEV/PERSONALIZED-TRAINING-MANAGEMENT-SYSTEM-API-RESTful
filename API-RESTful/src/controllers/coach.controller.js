@@ -302,7 +302,13 @@ const updateCoachProfile = async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json({ res: 'Perfil de entrenador actualizado correctamente', updatedCoach });
+        const updatedUser = await User.findByIdAndUpdate(
+            userID,
+            req.body,
+            { new: true }
+        );
+
+        res.status(200).json({ res: 'Perfil de entrenador actualizado correctamente', updatedCoach, updatedUser });
 
     } catch (error) {
         console.error(error);
