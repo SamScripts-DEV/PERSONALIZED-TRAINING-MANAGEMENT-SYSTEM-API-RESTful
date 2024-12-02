@@ -1,5 +1,6 @@
 import { fetchallexercises, fetchExcercisesByID } from "../services/exercisesAPI.js";
 import Exercise from "../models/exercises.js";
+import cron from "node-cron";
 
 
 
@@ -38,6 +39,13 @@ const syncExercisesOnStart = async() => {
     }
 };
 
+const startCronJobForExercises = () => {
+    cron.schedule("0 */12 * * *", syncExercisesOnStart, {
+        timezone: "America/Guayaquil",
+    });
+
+    console.log("Cron job para sincronizar ejercicios programado cada 12 horas.");
+};
 
 
 const exercisesByID = async(req, res) => {
@@ -136,6 +144,9 @@ const viewAllExercisesByID = async(req, res) => {
 export{
     allExercises,
     syncExercisesOnStart,
+
+    startCronJobForExercises,
+
     exercisesByID,
     getAllExercisesWithDetails,
     getAllExercisesWithDetailsforSave,

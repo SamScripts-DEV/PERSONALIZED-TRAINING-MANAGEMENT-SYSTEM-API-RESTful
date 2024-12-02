@@ -8,8 +8,7 @@ import routerExercises from './routers/exercises.routes.js';
 import routerRoutine from './routers/routine.routes.js';
 import routerProgress from './routers/progress.routes.js';
 import {createServer} from 'http';
-import cron from 'node-cron';
-import { syncExercisesOnStart} from './controllers/exercises.controller.js';
+
 
 
 //Inicializamos
