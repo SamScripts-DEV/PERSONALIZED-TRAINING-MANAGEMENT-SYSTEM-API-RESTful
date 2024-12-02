@@ -48,6 +48,10 @@ const userSchema = new Schema({
     codeExpiry:{
         type: Date,
         required: false
+    },
+    codePasswordUsed:{
+        type: Boolean,
+        default: false
     }
 
 },{

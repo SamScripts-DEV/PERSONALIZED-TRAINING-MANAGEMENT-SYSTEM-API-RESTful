@@ -84,19 +84,25 @@ const clientRegisterOnly = async (req, res) => {
 
 const confirmEmail = async (req, res) => {
     const {email, code} = req.body
+    console.log("email");
+    
     try {
         const userBDD = await User.findOne({email})
-        if(!userBDD) return res.status(400).json({res: 'Usuario no encontrado'})
-
-        if(userBDD.verificationCode !== code || userBDD.codeExpiry < Date.now()) return res.status(400).json({res: 'Código invalido o expirado'});
-        if(!userBDD.verificationCode) return res.status(401).json({res:"La cuenta no ha sido verificada"})
-
         
+        if(!userBDD) return res.status(400).json({res: 'Usuario no encontrado'});
+            
+        if(userBDD.verificationCode !== code || userBDD.codeExpiry < Date.now()) return res.status(400).json({res: 'Código invalido o expirado'});
+        if(!userBDD.verificationCode) return res.status(401).json({res:"La cuenta no ha sido verificada"});
+            
 
         userBDD.verificationCode = null
         userBDD.codeExpiry = null
         userBDD.confirmEmail = true
+        userBDD.codePasswordUsed = true
         await userBDD.save()
+        console.log(userBDD);
+        
+                
         res.status(200).json({res: 'Correo verificado con éxito'})
     } catch (error) {
         console.error(error)
@@ -338,10 +344,10 @@ const updateClientProfile = async (req, res) => {
             return res.status(400).json({ res: 'El género debe ser masculino o femenino' });
         }
         if (!['principiante', 'intermedio', 'avanzado'].includes(levelactivity)) {
-            return res.status(400).json({ res: 'El nivel de actividad no es válido' });
+            return res.status(400).json({ res: 'El nivel de actividad no es válido, debe ser principiante, intermedio o avanzado' });
         }
         if (!days.every(day => ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].includes(day))) {
-            return res.status(400).json({ res: 'Los días de entrenamiento no son válidos' });
+            return res.status(400).json({ res: 'Los días de entrenamiento no son válidos, deben ser escritos en español, con minúsculas y sin acentos o caracteres especiales' });
         }
 
         
@@ -406,9 +412,47 @@ const getTrainingReminders = async (req, res) =>{
     }
 }
 
+const restorePasswordClient = async (req, res) =>{
+    const { email } = req.body
+    try {
+        const user = await User.findOne({ email })
+        if(!user) return res.status(404).json({res: 'Usuario no encontrado'});
+        const verificationCode = generateVerificationCode();
+        user.verificationCode = verificationCode
+        user.codeExpiry = Date.now() + 10 * 60 * 1000
+        await user.save()
+        sendVerificationMail(user.email, verificationCode)
+        res.status(200).json({res: 'Correo de verificación enviado'})
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+    }
+}
 
+const newPasswordClient = async (req, res) =>{
 
+    const { email,  password , confirmPassword } = req.body;
+    if ( !password || !confirmPassword ) {
+        return res.status(400).json({ res: 'Falta de información' });
+    }
+    if ( password !== confirmPassword ) {
+        return res.status(400).json({ res: 'Las contraseñas no coinciden'})
+    }
+    try {
+        const user = await User.findOne({email})
+        console.log(user.codePasswordUsed);
+        if(!user.codePasswordUsed) return res.status(400).json({res: 'Correo no verificado o codigo expirado'});
+        if(!user) return res.status(404).json({res: 'Usuario no encontrado'});
+        user.password = await user.encryptPassword(password);
+        user.codePasswordUsed = false
+        await user.save();
+        res.status(200).json({res: 'Contraseña actualizada con éxito'})
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({res: 'Error en el servidor', error})
+    }
 
+}
 
 
 
@@ -426,5 +470,7 @@ export{
     deleteClient,
     viewAllClients,
     updateClientProfile,
-    getTrainingReminders
+    getTrainingReminders,
+    restorePasswordClient,
+    newPasswordClient
 }
