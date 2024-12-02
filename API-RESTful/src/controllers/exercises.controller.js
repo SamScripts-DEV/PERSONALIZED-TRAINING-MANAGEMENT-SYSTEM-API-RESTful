@@ -2,6 +2,7 @@ import { fetchallexercises, fetchExcercisesByID } from "../services/exercisesAPI
 import Exercise from "../models/exercises.js";
 
 
+
 const allExercises = async(req, res) => {
     try {
         const exercises = await fetchallexercises();
@@ -18,7 +19,7 @@ const allExercises = async(req, res) => {
 const syncExercisesOnStart = async() => {
     try {
         const exercises = await fetchallexercises();
-        console.log(exercises);
+        console.log(`Syncing exercises ${exercises.length} `);
 
         for (const exercise of exercises) {
             await Exercise.findOneAndUpdate(
