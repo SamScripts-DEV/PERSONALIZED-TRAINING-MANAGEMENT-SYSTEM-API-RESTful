@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import generateToken from "../helpers/JWT.js";
 import { sendMailToConfirm, sendMailToRecoveryPassword } from "../config/nodemailer.js";
+import user from "../models/user.js";
 
 const userRegister = async (req, res) => {
     try {
@@ -47,6 +48,9 @@ const login = async (req, res) => {
         const verifyPassword = await userBDD.matchPassword(password)
         if (!verifyPassword) return res.status(401).json({ res: 'Contraseña Incorrecta' })
 
+        userBDD.logout = false
+        await userBDD.save()
+
         const token = generateToken(userBDD._id, userBDD.rol)
         const { name, lastname, rol, _id } = userBDD
         res.status(200).json({ res: 'Login exitoso', token, name, lastname, email, rol, _id })
@@ -57,6 +61,15 @@ const login = async (req, res) => {
     }
 
 };
+
+const logout = async (req, res) => {
+    const user = await User.findById(req.userBDD._id)
+    user.logout = true
+    await user.save()
+
+    res.status(200).json({ res: 'Sesión cerrada correctamente' })
+}
+
 
 
 const updatePassword = async (req, res) => {
@@ -121,12 +134,27 @@ const newPassword = async (req, res) => {
     }
 }
 
+const ViewProfile = async (req, res) => {
+    try {
+        const userBDD = await User.findById(req.userBDD._id).select('-password -status -createdAt -updatedAt')
+        if (!userBDD) return res.status(404).json({ res: 'Usuario no encontrado' })
+        res.status(200).json(userBDD)
+
+
+    } catch (error) {1
+        console.error(error)
+        return res.status(500).json({ res: 'Error en el servidor' })
+    }
+}
+
 export {
     userRegister,
     login,
+    logout,
     updatePassword,
     restorePassword,
     confirmTokenPassword,
-    newPassword
+    newPassword,
+    ViewProfile
 
 }

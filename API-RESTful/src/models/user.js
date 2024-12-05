@@ -52,8 +52,11 @@ const userSchema = new Schema({
     codePasswordUsed:{
         type: Boolean,
         default: false
+    },
+    logout:{
+        type: Boolean,
+        default: false
     }
-
 },{
     timestamps: true
 });

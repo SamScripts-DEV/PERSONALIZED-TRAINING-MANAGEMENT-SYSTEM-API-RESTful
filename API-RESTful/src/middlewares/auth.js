@@ -9,7 +9,9 @@ const verifyAuth = async (req, res, next) => {
     try {
         const { id, rol } = jwt.verify(authorization.split(' ')[1], process.env.JWT_SECRET);
         const user = await User.findById(id).lean().select('-password');
-
+        if (user.logout) {
+            return res.status(401).json({ res: 'Acceso denegado, token inválido o expirado, comuniquese con el soporte.' });
+        }
         if (!user) {
             return res.status(401).json({ res: 'Usuario no encontrado.' });
         }
