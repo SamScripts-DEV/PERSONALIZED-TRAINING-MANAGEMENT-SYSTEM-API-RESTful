@@ -100,7 +100,11 @@ const confirmEmail = async (req, res) => {
         userBDD.confirmEmail = true
         userBDD.codePasswordUsed = true
         await userBDD.save()
-        console.log(userBDD);
+
+        setTimeout( async () => {
+            userBDD.codePasswordUsed = false
+            await userBDD.save()
+        }, 2 * 60 * 1000 )
         
                 
         res.status(200).json({res: 'Correo verificado con éxito'})
