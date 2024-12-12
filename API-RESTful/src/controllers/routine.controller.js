@@ -142,13 +142,13 @@ const viewRoutineById = async (req, res) => {
 
 const updateRoutine = async (req, res) => {
     try {
-        const { id } = req.params
-        const { days, comments, start_date, end_date, nameRoutine } = req.body
-        if (Object.values(req.body).includes('')) return res.status(400).json({ res: 'Rellene todos los campos antes de enviar la solicitud' })
+        const { id } = req.params;
+        const { days, comments, start_date, end_date, nameRoutine } = req.body;
 
-        if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ res: 'Los días deben ser un arreglo de objetos' })
-        if (!Types.ObjectId.isValid(id)) return res.status(400).json({ res: 'El id de la rutina no es válido' })
+        
+        if (!Types.ObjectId.isValid(id)) return res.status(400).json({ res: 'El id de la rutina no es válido' });
 
+        
         const startDate = new Date(start_date);
         const endDate = new Date(end_date);
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
@@ -157,25 +157,49 @@ const updateRoutine = async (req, res) => {
         if (startDate >= endDate) {
             return res.status(400).json({ res: 'La fecha de inicio debe ser anterior a la fecha final' });
         }
-        const duration_days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
 
+        
+        if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ res: 'Los días deben ser un arreglo de objetos' });
 
-        const updatedRoutine = await Routine.findByIdAndUpdate(
-            id,
-            { days, comments, nameRoutine, start_date: startDate, end_date: endDate, duration_days },
-            { new: true, runValidators: true }
-        ).populate('days.exercises', 'category equipment force images instructions level mechanic name primary');
+        
+        const existingRoutine = await Routine.findById(id);
+        if (!existingRoutine) return res.status(404).json({ res: 'Rutina no encontrada' });
 
-        if (!updatedRoutine) return res.status(404).json({ res: 'Rutina no encontrada' })
+        
+        const currentDaysMap = new Map(existingRoutine.days.map(day => [day.day, day]));
 
-        res.status(200).json({ res: 'Rutina actualizada', updatedRoutine })
+        
+        const updatedDays = days.map(day => {
+            const existingDay = currentDaysMap.get(day.day);
+            if (existingDay) {
+                
+                return { ...existingDay, exercises: day.exercises };
+            }
+            
+            return day;
+        });
 
+        
+        const filteredDays = updatedDays.filter(day => days.some(newDay => newDay.day === day.day));
+
+        
+        existingRoutine.days = filteredDays;
+        existingRoutine.comments = comments;
+        existingRoutine.start_date = startDate;
+        existingRoutine.end_date = endDate;
+        existingRoutine.duration_days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        existingRoutine.nameRoutine = nameRoutine;
+
+        
+        await existingRoutine.save();
+
+        res.status(200).json({ res: 'Rutina actualizada', updatedRoutine: existingRoutine });
     } catch (error) {
-        console.error(error)
-        return res.status(500).json({ res: 'Error en el servidor', error })
-
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
     }
 };
+
 
 const deleteRoutine = async (req, res) => {
     try {
