@@ -10,14 +10,20 @@ export const startCronJob = (server) => {
   const expo = new Expo();
 
   const checkTrainingReminders = async () => {
+    const removeAccents = (str) => {
+      return str
+        .normalize("NFD") // Normaliza la cadena en forma de descomposición
+        .replace(/[\u0300-\u036f]/g, ""); // Elimina los caracteres de acento
+    };
     try {
       const today = format(new Date(), "EEEE", { locale: es }).toLowerCase();
+      const normalizedToday = removeAccents(today);
 
       console.log(
         `Iniciando la verificación de recordatorios para el día: ${today}`
       );
 
-      const clients = await Client.find({ days: today }).populate(
+      const clients = await Client.find({ days: normalizedToday }).populate(
         "user_id",
         "name email"
       );
