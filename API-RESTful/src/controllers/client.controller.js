@@ -366,16 +366,6 @@ const updateClientProfile = async (req, res) => {
             return res.status(404).json({ res: 'Cliente no encontrado' });
         }
 
-        const findroutines = await Routine.find({ client_id: client._id });
-        findroutines.forEach(async (routine) => {
-            routine.days = days.map(day => {
-                if (routine.days.includes(day.day)) {
-                    return day;
-                }
-                return { day, exercises: [] };  
-            }),
-            await routine.save();
-        });
        
         const updatedClient = await Client.findByIdAndUpdate(
             client._id,
