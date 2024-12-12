@@ -55,7 +55,10 @@ const clientSchema = new Schema({
             type: Types.ObjectId,
             ref: 'Progress',
         }
-    ]
+    ],
+    notificationToken:{
+        type:String
+    }
 });
 
 

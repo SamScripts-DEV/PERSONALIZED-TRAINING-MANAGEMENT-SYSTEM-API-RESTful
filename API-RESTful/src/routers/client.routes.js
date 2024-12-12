@@ -11,7 +11,8 @@ import{
     updateClientProfile,
     getTrainingReminders,
     restorePasswordClient,
-    newPasswordClient
+    newPasswordClient,
+    tokenNotification
 } from "../controllers/client.controller.js";
 import { validateClient } from "../middlewares/client.validation.js";
 import verifyAuth from "../middlewares/auth.js";
@@ -54,6 +55,8 @@ router.delete("/client/delete/:clientID",verifyAuth, deleteClient); //Elimina al
 
 
 router.get("/reminders",verifyAuth, getTrainingReminders); //Devuelve los días de entrenamiento del cliente
+
+router.post("/save-notification-token", verifyAuth, tokenNotification); //Guarda el token de notificación del cliente
 
 
 

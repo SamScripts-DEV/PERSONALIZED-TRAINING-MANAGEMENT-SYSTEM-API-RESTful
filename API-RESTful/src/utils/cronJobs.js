@@ -3,8 +3,12 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Client from "../models/client.js";
 import { io } from "../config/messaging.js";
+import { Expo } from "expo-server-sdk"
 
 export const startCronJob = (server) => {
+
+  const expo = new Expo();
+
   const checkTrainingReminders = async () => {
     try {
       const today = format(new Date(), "EEEE", { locale: es }).toLowerCase();
@@ -23,18 +27,40 @@ export const startCronJob = (server) => {
         return;
       }
 
+      const mensajes = [];
       clients.forEach((client) => {
-        const { name, email } = client.user_id;
-        console.log(
-          `Hoy es ${today}. Recordatorio enviado a: ${name} (${email})`
-        );
+        const { name } = client.user_id;
+        const notificationToken = client.notificationToken;
 
-        io.emit("reminder", {
-          name,
-          email,
-          day: today,
-        });
+        if ( Expo.isExpoPushToken(notificationToken) ){
+          mensajes.push({
+            to: notificationToken,
+            sound: "default",
+            title: "¡Es hora de tu entrenamiento!",
+            body: `¡Hola ${name}! Recuerda que hoy es uno de tus días de entrenamiento (${today}).`,
+            data: { userId : client.user_id._id },
+          })
+        }
+
+        // console.log(
+        //   `Hoy es ${today}. Recordatorio enviado a: ${name}`
+        // );
+
+        // io.emit("reminder", {
+        //   name,
+        //   email,
+        //   day: today,
+        // });
       });
+
+      const chunks = expo.chunkPushNotifications( mensajes );
+      for (const chunk of chunks) {
+        await expo.sendPushNotificationsAsync(chunk);
+      }
+
+      console.log("Notificaciones enviadas con éxito");
+      
+
     } catch (error) {
       console.error("Error al verificar recordatorios:", error);
     }
