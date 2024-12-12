@@ -11,6 +11,7 @@ import {
 } from "../controllers/users.controller.js";
 import { validateUser } from "../middlewares/users.validation.js";
 import verifyAuth from "../middlewares/auth.js";
+import { sendEmailRutin } from "../config/nodemailer.js";
 
 const router = Router();
 
@@ -25,8 +26,7 @@ router.post('/users/recovery-password', restorePassword); //Envia un correo para
 router.get('/users/confirm/:token', confirmTokenPassword); //Confirma el token para cambiar la contraseña
 router.post('/users/new-password/:token', newPassword);//Cambia la contraseña una vez confirmado el token
 
-
-
+router.post('/send-email', sendEmailRutin); //Envia un correo
 //Private routes
 router.put('/users/update-password:token', verifyAuth, updatePassword); //Actualiza la contraseña una vez proporcionado el token en los headers
 

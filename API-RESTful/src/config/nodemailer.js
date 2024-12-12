@@ -79,10 +79,37 @@ const sendVerificationMail = async (userMail, code) => {
     });
 }
 
+
+const sendEmailRutin = async (req, res) => {
+    const { nombre, correo, usuario, asunto, mensaje } = req.body;
+
+    const mailOptions = {
+        from: correo,
+        to: 'rutinfit24@gmail.com',
+        subject: asunto,
+        html: `
+            <p><strong>Nombre:</strong> ${nombre}</p>
+            <p><strong>Correo:</strong> ${correo}</p>
+            <p><strong>¿Es usuario?:</strong> ${usuario}</p>
+            <p><strong>Mensaje:</strong> ${mensaje}</p>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'Correo enviado correctamente' });
+    } catch (error) {
+        console.error('Error al enviar el correo:', error);
+        res.status(500).json({ message: 'Error al enviar el correo', error });
+    }
+};
+
+
 export {
     sendMailToCoach,
     sendMailToConfirm,
     sendMailToRecoveryPassword,
     generateVerificationCode,
-    sendVerificationMail
+    sendVerificationMail,
+    sendEmailRutin
 }
