@@ -34,7 +34,7 @@ export const coachRegister = async (req, res) => {
     }
 };
 
-export const viewCoaches = async (req, res) => {
+export const viewCoaches = async (_, res) => {
     try {
         res.status(200).json(
             await Coach.find().populate(
@@ -192,7 +192,10 @@ export const getClientsByCoachId = async (req, res) => {
 
 export const getClientByCoachById = async (req, res) => {
     try {
-        const { _id: user_id, clientID: _id } = req.userBDD._id;
+        const {
+            userBDD: { _id: user_id },
+            params: { clientID: _id },
+        } = req;
 
         const coach_id = await Coach.exists({ user_id });
 
@@ -270,7 +273,7 @@ export const updateCoachProfile = async (req, res) => {
         const {
             userBDD: { _id: user_id },
             body: { description },
-        } = req.userBDD;
+        } = req;
         const coach_id = await Coach.exists({ user_id });
 
         if (!coach_id)
