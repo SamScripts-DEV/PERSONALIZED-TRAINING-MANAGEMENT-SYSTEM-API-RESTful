@@ -366,6 +366,28 @@ export const updateClientProfile = async (req, res) => {
             { new: true, runValidators: true },
         );
 
+        // Sí el cliente actualizo los días de entrenamiento
+        // days = ['lunes', 'martes']
+
+        if (days.length !== client.days.length) {
+            const routines = await Routine.find({ client_id });
+            const updatedRoutines = routines.map((routine) => {
+                routine.days = days.map((day) => {
+                    const existingDay = routine.days.find(
+                        (day) => day.day === day,
+                    );
+                    
+                    if (existingDay) return existingDay;
+
+                    return { day, exercises: [] };
+                });
+                return routine;
+            });
+
+            await Routine.deleteMany({ client_id });
+            await Routine.insertMany(updatedRoutines);
+        }
+
         res.status(200).json({
             res: 'Perfil actualizado correctamente',
             user,
