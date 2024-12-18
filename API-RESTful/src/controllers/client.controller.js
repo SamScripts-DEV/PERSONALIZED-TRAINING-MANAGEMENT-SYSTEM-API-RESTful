@@ -374,7 +374,7 @@ export const updateClientProfile = async (req, res) => {
             const updatedRoutines = routines.map((routine) => {
                 routine.days = days.map((day) => {
                     const existingDay = routine.days.find(
-                        (day) => day.day === day,
+                        (obj) => obj.day === day,
                     );
                     
                     if (existingDay) return existingDay;
