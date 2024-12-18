@@ -1,65 +1,64 @@
-import { Schema, model, Types } from "mongoose";
-
+import { Schema, model, Types } from 'mongoose';
 
 const clientSchema = new Schema({
-    user_id:{
+    user_id: {
         type: Types.ObjectId,
         ref: 'User',
-        required: true
-
+        required: true,
     },
-    genre:{
+    genre: {
         type: String,
         enum: ['masculino', 'femenino'],
         required: true,
-        trim: true
-
+        trim: true,
     },
-    weight:{
+    weight: {
         type: Number,
         required: true,
-        trim: true
-
+        trim: true,
     },
-    height:{
+    height: {
         type: Number,
         required: true,
-        trim: true
-
+        trim: true,
     },
-    age:{
+    age: {
         type: Number,
         required: true,
-        trim: true
-
+        trim: true,
     },
-    levelactivity:{
+    levelactivity: {
         type: String,
         enum: ['principiante', 'intermedio', 'avanzado'],
         required: true,
-        trim: true
-        
+        trim: true,
     },
-    days:{
+    days: {
         type: [String],
-        enum: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'],
+        enum: [
+            'lunes',
+            'martes',
+            'miercoles',
+            'jueves',
+            'viernes',
+            'sabado',
+            'domingo',
+        ],
         required: true,
-
     },
-    coach_id:{
+    coach_id: {
         type: Types.ObjectId,
         ref: 'Coach',
     },
-    progress:[
+    progress: [
         {
             type: Types.ObjectId,
             ref: 'Progress',
-        }
+        },
     ],
-    notificationToken:{
-        type:String
-    }
+    notificationToken: {
+        type: String,
+    },
 });
-
 
 export default model('Client', clientSchema);

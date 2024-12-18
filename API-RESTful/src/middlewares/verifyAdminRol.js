@@ -1,6 +1,6 @@
-const verifyAdminRole = (req, res, next) => {
+export const verifyAdminRole = (req, res, next) => {
     try {
-        if (req.userBDD.role !== 'administrador') {
+        if (req.userBDD.rol !== 'administrador') {
             return res.status(403).json({
                 res: 'Acceso denegado. Solo los administradores pueden realizar esta acción.',
             });
@@ -11,5 +11,3 @@ const verifyAdminRole = (req, res, next) => {
         res.status(500).json({ res: 'Error en el servidor.', error });
     }
 };
-
-export default verifyAdminRole;

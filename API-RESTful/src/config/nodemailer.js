@@ -1,115 +1,115 @@
-import nodemailer from 'nodemailer';
+import { createTransport } from 'nodemailer';
 import 'dotenv/config';
-import crypto from 'crypto';
+import { randomInt } from 'crypto';
 
-let transporter = nodemailer.createTransport({
+const {
+    HOST_MAILTRAP,
+    PORT_MAILTRAP,
+    USER_MAILTRAP,
+    PASS_MAILTRAP,
+    URL_FRONT,
+} = process.env;
+
+let transporter = createTransport({
     service: 'gmail',
-    host: process.env.HOST_MAILTRAP,
-    port: process.env.PORT_MAILTRAP,
+    host: HOST_MAILTRAP,
+    port: PORT_MAILTRAP,
     auth: {
-        user: process.env.USER_MAILTRAP,
-        pass: process.env.PASS_MAILTRAP
-    }
+        user: USER_MAILTRAP,
+        pass: PASS_MAILTRAP,
+    },
 });
 
-const sendMailToConfirm = async (userMail, token) => {
-    let mailOptions = {
-        from: process.env.USER_MAILTRAP,
-        to: userMail,
-        subject: 'Confirmación de correo',
-        html: `<h1>Confirma tu correo</h1>
+const mailResponse = (err, { message }) => console.log(err ? err : message);
+
+export const generateVerificationCode = () =>
+    randomInt(100000, 999999).toString();
+
+export const sendMailToConfirm = (userMail, token) => {
+    transporter.sendMail(
+        {
+            from: USER_MAILTRAP,
+            to: userMail,
+            subject: 'Confirmación de correo - RutinFit',
+            html: `<h1>Confirma tu correo</h1>
         <p>Para confirmar tu correo da click en el siguiente enlace</p>
-        <a href="${process.env.URL_FRONT}/confirm/${token}">Click aqui</a>
-        `
-    }
-    transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log(error);
-        }else{
-            console.log('Email enviado: ' + info.response);
-        }
-    })
-}
+        <a href="${URL_FRONT}/confirm/${token}">Click aqui</a>
+        `,
+        },
+        mailResponse,
+    );
+};
 
-
-const sendMailToCoach = async (userMail, password, nameCoach) =>{
-    let info = await transporter.sendMail({
-        from: 'rutinfit@fitness.com',
-        to: userMail,
-        subject: "Bienvenido a RutinFit",
-        html: `<h1>Bienvenido a RutinFit</h1>
+export const sendMailToCoach = (userMail, password, nameCoach) => {
+    transporter.sendMail(
+        {
+            from: USER_MAILTRAP,
+            to: userMail,
+            subject: 'Bienvenido a RutinFit',
+            html: `<h1>Bienvenido a RutinFit</h1>
         <p>Hola ${nameCoach} es un gusto que trabajes junto a nostros, a continuación encontraras la contraeña con la que podrás acceder al sistema de entrenadores</p>
 
         <h3>Contraseña: ${password}</h3>
         <p>Por favor no compartas esta contraseña con nadie</p>
-        <a href = ${process.env.URL_FRONT}>Click aqui para iniciar sesión</a>
+        <a href = ${URL_FRONT}>Click aqui para iniciar sesión</a>
         <p>Gracias por ser parte de RutinFit.</p>
-        `
-    });
-    console.log("Mensaje enviado correctamente");
-    
-}
-
-
-const sendMailToRecoveryPassword = async (userMail, token) => {
-    let info = await transporter.sendMail({
-        from: 'rutinfit@fitness.com',
-        to: userMail,
-        subject: "Recuperación de contraseña",
-        html: `<h1>Recuperación de contraseña</h1>
-        <p>Para recuperar tu contraseña da click en el siguiente enlace</p>
-        <a href="${process.env.URL_FRONT}/recovery/${token}">Click aqui</a>
-        `
-    });
-    console.log("Mensaje enviado correctamente");
-}
-
-const generateVerificationCode = () => crypto.randomInt(100000, 999999).toString();
-
-
-const sendVerificationMail = async (userMail, code) => {
-    let info = await transporter.sendMail({
-        from: 'rutinfit@fitness.com',
-        to: userMail,
-        subject: "Código de verificación",
-        html: `<h1>Código de verificación</h1>
-        <p>Para confirmar tu correo ingresa el siguiente código</p>
-        <h3>${code}</h3>
-        `   
-    });
-}
-
-
-const sendEmailRutin = async (req, res) => {
-    const { nombre, correo, usuario, asunto, mensaje } = req.body;
-
-    const mailOptions = {
-        from: correo,
-        to: 'rutinfit24@gmail.com',
-        subject: asunto,
-        html: `
-            <p><strong>Nombre:</strong> ${nombre}</p>
-            <p><strong>Correo:</strong> ${correo}</p>
-            <p><strong>¿Es usuario?:</strong> ${usuario}</p>
-            <p><strong>Mensaje:</strong> ${mensaje}</p>
         `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: 'Correo enviado correctamente' });
-    } catch (error) {
-        console.error('Error al enviar el correo:', error);
-        res.status(500).json({ message: 'Error al enviar el correo', error });
-    }
+        },
+        mailResponse,
+    );
 };
 
+export const sendMailToRecoveryPassword = (userMail, token) => {
+    transporter.sendMail(
+        {
+            from: USER_MAILTRAP,
+            to: userMail,
+            subject: 'Recuperación de contraseña - RutinFit',
+            html: `<h1>Recuperación de contraseña</h1>
+        <p>Para recuperar tu contraseña da click en el siguiente enlace</p>
+        <a href="${URL_FRONT}/recovery/${token}">Click aqui</a>
+        `,
+        },
+        mailResponse,
+    );
+};
 
-export {
-    sendMailToCoach,
-    sendMailToConfirm,
-    sendMailToRecoveryPassword,
-    generateVerificationCode,
-    sendVerificationMail,
-    sendEmailRutin
-}
+export const sendVerificationMail = (userMail, code) => {
+    transporter.sendMail(
+        {
+            from: USER_MAILTRAP,
+            to: userMail,
+            subject: 'Código de verificación - RutinFit',
+            html: `<h1>Código de verificación</h1>
+        <p>Para confirmar tu correo ingresa el siguiente código</p>
+        <h3>${code}</h3>
+        `,
+        },
+        mailResponse,
+    );
+};
+
+export const sendEmailRutin = async (req, res) => {
+    const { nombre, correo, usuario, asunto, mensaje } = req.body;
+
+    try {
+        transporter.sendMail(
+            {
+                from: correo,
+                to: USER_MAILTRAP, // rutinfit24@gmail.com
+                subject: `${asunto} - ${nombre}`,
+                html: `
+                <p><strong>Nombre:</strong> ${nombre}</p>
+                <p><strong>Correo:</strong> ${correo}</p>
+                <p><strong>¿Es usuario?:</strong> ${usuario}</p>
+                <p><strong>Mensaje:</strong> ${mensaje}</p>
+            `,
+            },
+            mailResponse,
+        );
+        res.status(200).json({ res: 'Correo enviado correctamente' });
+    } catch (error) {
+        console.error('Error al enviar el correo:', error);
+        res.status(500).json({ res: 'Error al enviar el correo', error });
+    }
+};

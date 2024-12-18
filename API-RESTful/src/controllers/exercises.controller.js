@@ -1,158 +1,105 @@
-import { fetchallexercises, fetchExcercisesByID } from "../services/exercisesAPI.js";
-import Exercise from "../models/exercises.js";
-import cron from "node-cron";
+import {
+    fetchallexercises,
+    fetchExcercisesByID,
+} from '../services/exercisesAPI.js';
+import Exercise from '../models/exercises.js';
+import { schedule } from 'node-cron';
 
-
-
-const allExercises = async(req, res) => {
-    try {
-        const exercises = await fetchallexercises();
-        console.log(exercises);
-        
-        res.status(200).json(exercises);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({res:"Error en el servidor"});
-        
-    }
-};
-
-const syncExercisesOnStart = async() => {
+export const syncExercisesOnStart = async () => {
     try {
         const exercises = await fetchallexercises();
         console.log(`Syncing exercises ${exercises.length} `);
 
-        for (const exercise of exercises) {
-            await Exercise.findOneAndUpdate(
-                {name: exercise.name},
-                {...exercise},
-                {upsert: true, new: true}
-            )
-
-        }
-            
-        
+        await Exercise.deleteMany({});
+        await Exercise.insertMany(exercises);
     } catch (error) {
         console.error(error);
-        
-        
     }
 };
 
-const startCronJobForExercises = () => {
-    cron.schedule("0 */12 * * *", syncExercisesOnStart, {
-        timezone: "America/Guayaquil",
+export const startCronJobForExercises = () => {
+    schedule('0 */12 * * *', syncExercisesOnStart, {
+        timezone: 'America/Guayaquil',
     });
 
-    console.log("Cron job para sincronizar ejercicios programado cada 12 horas.");
+    console.log(
+        'Cron job para sincronizar ejercicios programado cada 12 horas.',
+    );
 };
 
-
-const exercisesByID = async(req, res) => {
+export const allExercises = async (_, res) => {
     try {
-        const exercise = await fetchExcercisesByID();
-        res.status(200).json(exercise);
+        res.status(200).json(await fetchallexercises());
     } catch (error) {
         console.error(error);
-        res.status(500).json({res:"Error en el servidor"});
+        res.status(500).json({ res: 'Error en el servidor' });
     }
 };
 
+export const exercisesByID = async (_, res) => {
+    try {
+        res.status(200).json(await fetchExcercisesByID());
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor' });
+    }
+};
 
-const getAllExercisesWithDetails = async(req, res) => {
+export const getAllExercisesWithDetails = async (_, res) => {
     try {
         const exercisesIDs = await fetchallexercises();
-        if(!exercisesIDs){
-            res.status(404).json({res:"No se encontraron ejercicios"});
-        }
+        if (!exercisesIDs)
+            res.status(404).json({ res: 'No se encontraron ejercicios' });
 
         const exercisesWithDetails = await Promise.all(
-            exercisesIDs.map(id => fetchExcercisesByID(id))
-        )
+            exercisesIDs.map((id) => fetchExcercisesByID(id)),
+        );
 
         res.status(200).json(exercisesWithDetails);
     } catch (error) {
         console.error(error);
-        res.status(500).json({res:"Error en el servidor"});
-        
+        res.status(500).json({ res: 'Error en el servidor' });
     }
 };
 
-const getAllExercisesWithDetailsforSave = async() => {
+// export const getAllExercisesWithDetailsforSave = async () => {
+//     try {
+//         const exercisesIDs = await fetchallexercises();
+//         if (!exercisesIDs) console.log('No se encontraron ejercicios');
+
+//         const exercisesWithDetails = await Promise.all(
+//             exercisesIDs.map((id) => fetchExcercisesByID(id)),
+//         );
+
+//         await Promise.all(
+//             exercisesWithDetails.map(async (exercise) => {
+//                 if (exercise.id && exercise.id.trim() !== '')
+//                     await Exercise.findOneAndUpdate(
+//                         { apiID: exercise.id },
+//                         { ...exercise, apiID: exercise.id },
+//                         { upsert: true, new: true },
+//                     );
+//             }),
+//         );
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
+export const viewAllExercises = async (_, res) => {
     try {
-        const exercisesIDs = await fetchallexercises();
-        if(!exercisesIDs){
-            console.log("No se encontraron ejercicios");
-        }
-
-        const exercisesWithDetails = await Promise.all(
-            exercisesIDs.map(id => fetchExcercisesByID(id))
-        )
-       
-
-        const validExercises = exercisesWithDetails.filter(exercise => exercise.id);
-        await Promise.all(
-            exercisesWithDetails.map(async (exercise) => {
-                if (exercise.id && exercise.id.trim() !== '') {
-                    await Exercise.findOneAndUpdate(
-                        { apiID: exercise.id },
-                        {...exercise, apiID: exercise.id},
-                        { upsert: true, new: true }
-                    );
-                } else {
-                    console.log("Ejercicio con id inválido:", exercise);
-                }
-            })
-        )
-    } catch (error) {
-        console.error(error)
-    }
-};
-
-
-
-
-
-
-const viewAllExercises = async(req, res) => {
-    try {
-        const exercises = await Exercise.find();
-        console.log(exercises);
-        
-        res.status(200).json(exercises);
+        res.status(200).json(await Exercise.find());
     } catch (error) {
         console.error(error);
-        res.status(500).json({res:"Error en el servidor"});
+        res.status(500).json({ res: 'Error en el servidor' });
     }
 };
 
-const viewAllExercisesByID = async(req, res) => {
-    const {id} = req.params;
+export const viewAllExercisesByID = async (req, res) => {
     try {
-        const exercise = await Exercise.findById(id);
-        res.status(200).json(exercise);
+        res.status(200).json(await Exercise.findById(req.params.id));
     } catch (error) {
         console.error(error);
-        res.status(500).json({res:"Error en el servidor"});
-        
+        res.status(500).json({ res: 'Error en el servidor' });
     }
 };
-
-
-
-
-export{
-    allExercises,
-    syncExercisesOnStart,
-
-    startCronJobForExercises,
-
-    exercisesByID,
-    getAllExercisesWithDetails,
-    getAllExercisesWithDetailsforSave,
-
-    viewAllExercises,
-    viewAllExercisesByID
-
-}
-

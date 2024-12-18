@@ -1,30 +1,29 @@
-import { Schema, model, Types,} from "mongoose";
+import { Schema, model, Types } from 'mongoose';
 
 const coachSchema = new Schema({
-    user_id:{
+    user_id: {
         type: Types.ObjectId,
         ref: 'User',
-        required:true
+        required: true,
     },
-    description:{
-        type: String
+    description: {
+        type: String,
     },
-    clientes:[
+    clientes: [
         {
-            client_id:{
+            client_id: {
                 type: Types.ObjectId,
-                ref: 'Client'
+                ref: 'Client',
             },
             assignmentDate: {
                 type: Date,
-                default: Date.now()
+                default: Date.now(),
             },
             observation: {
-                type: String
-            }
-        }
-    ]
+                type: String,
+            },
+        },
+    ],
 });
-
 
 export default model('Coach', coachSchema);

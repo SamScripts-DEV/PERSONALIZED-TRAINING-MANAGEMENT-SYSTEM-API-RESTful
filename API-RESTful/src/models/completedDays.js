@@ -1,24 +1,32 @@
-import { Schema , model , Types } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
 const completedDaysSchema = new Schema({
     client_id: {
         type: Types.ObjectId,
         ref: 'Client',
-        required: true
+        required: true,
     },
     day: {
         type: String,
-        enum: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sabado', 'domingo'],
-        required: true
+        enum: [
+            'lunes',
+            'martes',
+            'miércoles',
+            'jueves',
+            'viernes',
+            'sabado',
+            'domingo',
+        ],
+        required: true,
     },
     completed: {
         type: Boolean,
-        default: false
+        default: false,
     },
     date: {
         type: Date,
-        default: Date.now
-    }
-})
+        default: Date.now,
+    },
+});
 
-export default model("CompletedDays", completedDaysSchema);
+export default model('CompletedDays', completedDaysSchema);

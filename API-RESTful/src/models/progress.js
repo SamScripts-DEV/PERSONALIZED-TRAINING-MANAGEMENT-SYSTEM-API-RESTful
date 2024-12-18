@@ -1,24 +1,23 @@
-import { Schema, model, Types } from "mongoose";
-import client from "./client.js";
+import { Schema, model, Types } from 'mongoose';
 
 const progressSchema = new Schema({
-    client_id:{
+    client_id: {
         type: Types.ObjectId,
         ref: 'Client',
-        required: true
+        required: true,
     },
-    start_date:{
+    start_date: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
-    currentWeight:{
+    currentWeight: {
         type: Number,
         trim: true,
-        required: true
+        required: true,
     },
-    observations:{
+    observations: {
         type: String,
-        trim: true
+        trim: true,
     },
 });
 

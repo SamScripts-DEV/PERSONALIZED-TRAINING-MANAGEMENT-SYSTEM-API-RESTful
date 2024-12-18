@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
     coachRegister,
     viewCoaches,
@@ -9,42 +9,41 @@ import {
     getClientByCoachById,
     viewCoachProfile,
     getClientsByCoachId,
-    updateCoachProfile
-} from "../controllers/coach.controller.js";
-import verifyAuth from "../middlewares/auth.js";
-import verifyAdminRole from "../middlewares/verifyAdminRol.js";
-import Chat from "../models/chat.js";
-
-
+    updateCoachProfile,
+} from '../controllers/coach.controller.js';
+import { verifyAuth } from '../middlewares/auth.js';
+import { verifyAdminRole } from '../middlewares/verifyAdminRol.js';
+import Chat from '../models/chat.js';
 
 const router = Router();
 
-
-router.get("/chats/:client_id/:coach_id", async (req, res) => {
+router.get('/chats/:client_id/:coach_id', async (req, res) => {
     const client_id = req.params.client_id;
     const coach_id = req.params.coach_id;
     res.status(200).json(await Chat.find({ client_id, coach_id }));
 });
 
-//Public routes
+// Public routes
+router.post('/coach/register', coachRegister); // Registra un entrenador
 
-router.post('/coach/register', coachRegister);  //Registra un entrenador
+// Private routes
+router.get('/coach/view-coaches', verifyAuth, viewCoaches); // Muestra todos los entrenadores
+router.get('/coach/view-coach/:id', verifyAuth, viewCoachById); // Muestra un entrenador por id
+router.put('/coach/update-coach/:id', verifyAuth, updateCoach); // Actualiza un entrenador por id
+router.delete(
+    '/coach/delete-coach/:id',
+    verifyAuth,
+    verifyAdminRole,
+    deleteCoach,
+); // Elimina un entrenador por id
 
-//Private routes
-router.get('/coach/view-coaches',verifyAuth, viewCoaches); //Muestra todos los entrenadores
-router.get('/coach/view-coach/:id',verifyAuth, viewCoachById); //Muestra un entrenador por id
-router.put('/coach/update-coach/:id',verifyAuth, updateCoach); //Actualiza un entrenador por id
-router.delete('/coach/delete-coach/:id',verifyAuth,verifyAdminRole, deleteCoach); //Elimina un entrenador por id
+router.get('/coach/get-clients', verifyAuth, getClientsByCoach); // Muestra los clientes de un entrenador por id
+router.get('/coach/get-client/:clientID', verifyAuth, getClientByCoachById); // Muestra el detalle de un solo cliente
 
+router.get('/coach/get-clients/:coachID', verifyAuth, getClientsByCoachId); // Muestra los clientes de un entrenador por el ID del entrenador
 
-router.get('/coach/get-clients',verifyAuth, getClientsByCoach); //Muestra los clientes de un entrenador por id
-router.get('/coach/get-client/:clientID',verifyAuth, getClientByCoachById); //Muestra el detalle de un solo cliente
+router.get('/coach/view-profile', verifyAuth, viewCoachProfile); // Muestra el perfil del entrenador
 
-router.get('/coach/get-clients/:coachID',verifyAuth, getClientsByCoachId); //Muestra los clientes de un entrenador por el ID del entrenador
-
-router.get('/coach/view-profile',verifyAuth, viewCoachProfile); //Muestra el perfil del entrenador
-
-router.put('/coach/update-profile',verifyAuth, updateCoachProfile); //Actualiza el perfil del entrenador
-
+router.put('/coach/update-profile', verifyAuth, updateCoachProfile); // Actualiza el perfil del entrenador
 
 export default router;

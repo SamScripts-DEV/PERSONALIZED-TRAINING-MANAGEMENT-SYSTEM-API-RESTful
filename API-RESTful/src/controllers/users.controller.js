@@ -1,26 +1,33 @@
-import User from "../models/user.js";
-import generateToken from "../helpers/JWT.js";
-import { sendMailToConfirm, sendMailToRecoveryPassword } from "../config/nodemailer.js";
-import user from "../models/user.js";
+import User from '../models/user.js';
+import { generateToken } from '../helpers/JWT.js';
+import {
+    sendMailToRecoveryPassword,
+} from '../config/nodemailer.js';
 
 const userRegister = async (req, res) => {
     try {
-        const { email, password, rol } = req.body
+        const { email, password, rol } = req.body;
 
-        if (Object.values(req.body).includes('')) return res.status(400).json({ res: 'Rellene todos los campos antes de enviar la solicitud' })
-        if (await User.findOne({ email })) return res.status(400).json({ res: 'El email ya se encuentra registrado' })
+        if (Object.values(req.body).includes(''))
+            return res.status(400).json({
+                res: 'Rellene todos los campos antes de enviar la solicitud',
+            });
+        if (await User.findOne({ email }))
+            return res
+                .status(400)
+                .json({ res: 'El email ya se encuentra registrado' });
 
-        const newUser = new User(req.body)
-        newUser.password = await newUser.encryptPassword(password)
+        const newUser = new User(req.body);
+        newUser.password = await newUser.encryptPassword(password);
         // await newUser.crearToken()
         // sendMailToConfirm(email, newUser.token)
 
-        await newUser.save()
+        await newUser.save();
 
-        res.status(201).json({ res: 'Registro exitoso', newUser })
+        res.status(201).json({ res: 'Registro exitoso', newUser });
     } catch (error) {
-        console.error(error)
-        return res.status(500).json({ res: 'Error en el servidor' })
+        console.error(error);
+        return res.status(500).json({ res: 'Error en el servidor' });
     }
 };
 
@@ -36,75 +43,96 @@ const userRegister = async (req, res) => {
 //     res.status(200).json({res: 'Cuanta validada puedes iniciar sesión'})
 // };
 
-
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body
-        if (Object.values(req.body).includes('')) return res.status(400).json({ res: 'Rellene todos los campos' })
-        const userBDD = await User.findOne({ email }).select('-status -createdAt -updatedAt -token')
+        const { email, password } = req.body;
+        if (Object.values(req.body).includes(''))
+            return res.status(400).json({ res: 'Rellene todos los campos' });
+        const userBDD = await User.findOne({ email }).select(
+            '-status -createdAt -updatedAt -token',
+        );
         console.log(userBDD);
 
-        if (!userBDD) return res.status(404).json({ res: 'El email no se encuentra registrado por favor registrese' })
-        const verifyPassword = await userBDD.matchPassword(password)
-        if (!verifyPassword) return res.status(401).json({ res: 'Contraseña Incorrecta' })
+        if (!userBDD)
+            return res.status(404).json({
+                res: 'El email no se encuentra registrado por favor registrese',
+            });
+        const verifyPassword = await userBDD.matchPassword(password);
+        if (!verifyPassword)
+            return res.status(401).json({ res: 'Contraseña Incorrecta' });
 
-        userBDD.logout = false
-        await userBDD.save()
+        userBDD.logout = false;
+        await userBDD.save();
 
-        const token = generateToken(userBDD._id, userBDD.rol)
-        const { name, lastname, rol, _id } = userBDD
-        res.status(200).json({ res: 'Login exitoso', token, name, lastname, email, rol, _id })
-
+        const token = generateToken(userBDD._id, userBDD.rol);
+        const { name, lastname, rol, _id } = userBDD;
+        res.status(200).json({
+            res: 'Login exitoso',
+            token,
+            name,
+            lastname,
+            email,
+            rol,
+            _id,
+        });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ res: 'Error en el servidor' })
+        return res.status(500).json({ res: 'Error en el servidor' });
     }
-
 };
 
 const logout = async (req, res) => {
-    const user = await User.findById(req.userBDD._id)
-    user.logout = true
-    await user.save()
+    const user = await User.findById(req.userBDD._id);
+    user.logout = true;
+    await user.save();
 
-    res.status(200).json({ res: 'Sesión cerrada correctamente' })
-}
-
-
+    res.status(200).json({ res: 'Sesión cerrada correctamente' });
+};
 
 const updatePassword = async (req, res) => {
-    const userBDD = await User.findById(req.userBDD._id)
-    const verifyPassword = await userBDD.matchPassword(req.body.password)
-    if (!verifyPassword) return res.status(401).json({ res: 'Contraseña Incorrecta' })
+    const userBDD = await User.findById(req.userBDD._id);
+    const verifyPassword = await userBDD.matchPassword(req.body.password);
+    if (!verifyPassword)
+        return res.status(401).json({ res: 'Contraseña Incorrecta' });
 
-    userBDD.password = await userBDD.encryptPassword(req.body.newpassword)
-    await userBDD.save()
+    userBDD.password = await userBDD.encryptPassword(req.body.newpassword);
+    await userBDD.save();
 
-    res.status(200).json({ res: 'Contraseña actualizada correctamente' })
+    res.status(200).json({ res: 'Contraseña actualizada correctamente' });
 };
 
 const restorePassword = async (req, res) => {
-    const { email } = req.body
-    if (Object.values(req.body).includes('')) return res.status(400).json({ res: 'Rellene todos los campos' })
-    const userBDD = await User.findOne({ email })
-    if (!userBDD) return res.status(404).json({ res: 'El email no se encuentra registrado' })
+    const { email } = req.body;
+    if (Object.values(req.body).includes(''))
+        return res.status(400).json({ res: 'Rellene todos los campos' });
+    const userBDD = await User.findOne({ email });
+    if (!userBDD)
+        return res
+            .status(404)
+            .json({ res: 'El email no se encuentra registrado' });
 
-    await userBDD.createToken()
-    sendMailToRecoveryPassword(email, userBDD.token)
-    await userBDD.save()
+    await userBDD.createToken();
+    sendMailToRecoveryPassword(email, userBDD.token);
+    await userBDD.save();
 
-    res.status(200).json({ res: 'Correo enviado, revise su bandeja de entrada' })
+    res.status(200).json({
+        res: 'Correo enviado, revise su bandeja de entrada',
+    });
 };
 
 const confirmTokenPassword = async (req, res) => {
-    if (!(req.params.token)) return res.status(400).json({ res: 'Token no encontrado' })
+    if (!req.params.token)
+        return res.status(400).json({ res: 'Token no encontrado' });
 
-    const userBDD = await User.findOne({ token: req.params.token })
-    if (userBDD?.token !== req.params.token) return res.status(404).json({ res: 'Token no valido' })
+    const userBDD = await User.findOne({ token: req.params.token });
+    if (userBDD?.token !== req.params.token)
+        return res.status(404).json({ res: 'Token no valido' });
 
-    await userBDD.save()
+    await userBDD.save();
 
-    res.status(200).json({ res: 'Token confirmado, puede cambiar su contraseña' })
+    res.status(200).json({
+        res: 'Token confirmado, puede cambiar su contraseña',
+    });
 };
 
 const newPassword = async (req, res) => {
@@ -132,20 +160,22 @@ const newPassword = async (req, res) => {
         console.error('Error al actualizar la contraseña:', error);
         res.status(500).json({ res: 'Error en el servidor' });
     }
-}
+};
 
 const ViewProfile = async (req, res) => {
     try {
-        const userBDD = await User.findById(req.userBDD._id).select('-password -status -createdAt -updatedAt')
-        if (!userBDD) return res.status(404).json({ res: 'Usuario no encontrado' })
-        res.status(200).json(userBDD)
-
-
-    } catch (error) {1
-        console.error(error)
-        return res.status(500).json({ res: 'Error en el servidor' })
+        const userBDD = await User.findById(req.userBDD._id).select(
+            '-password -status -createdAt -updatedAt',
+        );
+        if (!userBDD)
+            return res.status(404).json({ res: 'Usuario no encontrado' });
+        res.status(200).json(userBDD);
+    } catch (error) {
+        1;
+        console.error(error);
+        return res.status(500).json({ res: 'Error en el servidor' });
     }
-}
+};
 
 export {
     userRegister,
@@ -155,6 +185,5 @@ export {
     restorePassword,
     confirmTokenPassword,
     newPassword,
-    ViewProfile
-
-}
+    ViewProfile,
+};
