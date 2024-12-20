@@ -5,17 +5,15 @@ import Coach from '../models/coach.js';
 
 export const createRoutine = async (req, res) => {
     try {
-        const {
-            body: {
-                client_id,
-                days,
-                comments,
-                start_date,
-                end_date,
-                nameRoutine,
-            },
-            userBDD: { _id: user_id },
+        const { 
+            client_id, 
+            days, 
+            comments, 
+            start_date, 
+            end_date, 
+            nameRoutine 
         } = req.body;
+        const { _id: user_id } = req.userBDD;
 
         if (Object.values(req.body).includes(''))
             return res.status(400).json({

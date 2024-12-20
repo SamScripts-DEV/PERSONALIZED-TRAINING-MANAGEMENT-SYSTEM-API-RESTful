@@ -234,7 +234,10 @@ export const viewClientProfile = async (req, res) => {
 
         const client = await Client.findOne({ user_id })
             .populate('user_id', 'name lastname email')
-            .populate('coach_id', 'user_id');
+            .populate({
+                path: 'coach_id',
+                populate: {path: 'user_id', select: 'name lastname email'}
+            });
         // .populate({
         //     path: 'progress',
         //     select: 'currentWeight observations, start_date',
@@ -245,13 +248,30 @@ export const viewClientProfile = async (req, res) => {
                 .status(404)
                 .json({ res: 'Perfil de cliente no encontrado' });
 
-        client.coach_id = client.coach_id._id;
-        client.coach_name = client.coach_id.user_id.name;
-
-        res.status(200).json({
-            res: 'Perfil de cliente encontrado',
-            client,
-        });
+                const clientResponse = {
+                    _id: client._id,
+                    genre: client.genre,
+                    weight: client.weight,
+                    height: client.height,
+                    age: client.age,
+                    levelactivity: client.levelactivity,
+                    days: client.days,
+                    progress: client.progress,
+                    user: client.user_id,
+                    coach: client.coach_id
+                        ? {
+                              _id: client.coach_id._id,
+                              name: client.coach_id.user_id?.name || 'No definido',
+                              lastname: client.coach_id.user_id?.lastname || 'No definido',
+                              email: client.coach_id.user_id?.email || 'No definido',
+                          }
+                        : null, 
+                };
+        
+                res.status(200).json({
+                    res: 'Perfil de cliente encontrado',
+                    client: clientResponse,
+                });
     } catch (error) {
         console.error(error);
         res.status(500).json({ res: 'Error en el servidor', error });
@@ -339,12 +359,24 @@ export const updateClientProfile = async (req, res) => {
                 days,
             },
             userBDD: { _id: user_id },
-        } = req.body;
+        } = req;
 
-        if (Object.keys().includes(''))
+        if (
+            !name ||
+            !lastname ||
+            !email ||
+            !genre ||
+            !weight ||
+            !height ||
+            !age ||
+            !levelactivity ||
+            !days
+        ) {
             return res
                 .status(400)
                 .json({ res: 'Rellene todos los campos obligatorios' });
+        }
+        
 
         const user = await User.findByIdAndUpdate(
             user_id,

@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 
 export const createProgress = async (req, res) => {
     try {
-        const { userBDD: { _id: user_id }, body: { currentWeight } } = req;
+        const { userBDD: { _id: user_id }, body: { currentWeight, observations="" } } = req;
         const client_id = await Client.exists({ user_id });
 
         if (!currentWeight)
