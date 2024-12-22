@@ -7,7 +7,8 @@ import routerExercises from './routers/exercises.routes.js';
 import routerRoutine from './routers/routine.routes.js';
 import routerProgress from './routers/progress.routes.js';
 import { createServer } from 'http';
-
+import cron from 'node-cron';
+import {startCronJobForExercises, syncExercisesOnStart} from './controllers/exercises.controller.js';
 // Inicializamos
 const app = express();
 
@@ -24,14 +25,15 @@ app.use(express.json());
 // Rutas
 app.get('/', (_, res) => res.send('Server running'));
 
-// await syncExercisesOnStart();
+ await syncExercisesOnStart();
 
-// cron.schedule('0 */12 * * *', async () => {
-//     console.log('Syncing exercises');
 
-//     await syncExercisesOnStart();
-//     console.log('Exercises synced');
-// });
+  cron.schedule('0 */12 * * *', async () => {
+      console.log('Syncing exercises');
+
+      await syncExercisesOnStart();
+      console.log('Exercises synced');
+  });
 
 app.use('/api/v1', [
     routerUsers,
