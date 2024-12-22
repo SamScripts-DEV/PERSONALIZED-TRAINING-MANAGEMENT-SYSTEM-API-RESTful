@@ -14,8 +14,8 @@ export const connectionToDatabase = async () => {
 
         console.log(`Database connected to: ${host} - ${port}`);
 
-        await syncExercisesOnStart();
-        startCronJobForExercises();
+        //await syncExercisesOnStart();
+        //startCronJobForExercises();
     } catch (error) {
         console.log(error);
     }

@@ -10,13 +10,15 @@ export const io = new Server(server, {
 
 export const socketToMessaging = () => {
     io.on('connection', (socket) => {
+        socket.on('join', (transmitter) => {
+            socket.join(transmitter);
+        })
         console.log('Client connected');
         socket.on('send', async (message) => {
             console.log(message);
 
             await Chat.create(message);
-
-            socket.broadcast.emit('receive', message);
+            io.to(message.receiver).emit("receive", message);
         });
     });
 };

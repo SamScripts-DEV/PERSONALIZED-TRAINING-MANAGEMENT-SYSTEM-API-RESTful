@@ -248,30 +248,30 @@ export const viewClientProfile = async (req, res) => {
                 .status(404)
                 .json({ res: 'Perfil de cliente no encontrado' });
 
-                const clientResponse = {
-                    _id: client._id,
-                    genre: client.genre,
-                    weight: client.weight,
-                    height: client.height,
-                    age: client.age,
-                    levelactivity: client.levelactivity,
-                    days: client.days,
-                    progress: client.progress,
-                    user: client.user_id,
-                    coach: client.coach_id
-                        ? {
-                              _id: client.coach_id._id,
-                              name: client.coach_id.user_id?.name || 'No definido',
-                              lastname: client.coach_id.user_id?.lastname || 'No definido',
-                              email: client.coach_id.user_id?.email || 'No definido',
-                          }
-                        : null, 
-                };
-        
-                res.status(200).json({
-                    res: 'Perfil de cliente encontrado',
-                    client: clientResponse,
-                });
+        // const clientResponse = {
+        //     _id: client._id,
+        //     genre: client.genre,
+        //     weight: client.weight,
+        //     height: client.height,
+        //     age: client.age,
+        //     levelactivity: client.levelactivity,
+        //     days: client.days,
+        //     progress: client.progress,
+        //     user: client.user_id,
+        //     coach: client.coach_id
+        //         ? {
+        //                 _id: client.coach_id._id,
+        //                 name: client.coach_id.user_id?.name || 'No definido',
+        //                 lastname: client.coach_id.user_id?.lastname || 'No definido',
+        //                 email: client.coach_id.user_id?.email || 'No definido',
+        //             }
+        //         : null, 
+        // };
+
+        res.status(200).json({
+            res: 'Perfil de cliente encontrado',
+            client,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ res: 'Error en el servidor', error });
