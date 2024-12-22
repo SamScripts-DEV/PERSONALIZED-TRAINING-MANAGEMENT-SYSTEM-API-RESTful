@@ -507,10 +507,8 @@ export const newPasswordClient = async (req, res) => {
 };
 
 export const tokenNotification = async (req, res) => {
-    const {
-        body: { token },
-        userBDD: { _id: user_id },
-    } = req.body;
+    const { token } = req.body;
+    const { _id: user_id } = req.userBDD;
 
     try {
         const client = await Client.findOne({ user_id });
