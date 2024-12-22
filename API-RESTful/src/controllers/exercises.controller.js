@@ -8,7 +8,7 @@ import { schedule } from 'node-cron';
 export const syncExercisesOnStart = async () => {
     try {
         const exercises = await fetchallexercises();
-        console.log(`Syncing exercises ${exercises.length} `);
+        console.log(`Syncing exercises ${exercises?.length} `);
 
         await Exercise.deleteMany({});
         await Exercise.insertMany(exercises);
