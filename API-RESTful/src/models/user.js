@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { hash, compare, genSalt } from 'bcryptjs';
 
 const userSchema = new Schema(
     {
@@ -64,11 +64,11 @@ const userSchema = new Schema(
 );
 
 userSchema.methods.encryptPassword = async (password) => {
-    return await bcrypt.hash(password, await bcrypt.genSalt(10));
+    return await hash(password, await genSalt(10));
 };
 
 userSchema.methods.matchPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    return await compare(password, this.password);
 };
 
 userSchema.methods.createToken = function () {

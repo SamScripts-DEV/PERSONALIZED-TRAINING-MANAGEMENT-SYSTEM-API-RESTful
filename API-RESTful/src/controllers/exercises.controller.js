@@ -10,8 +10,9 @@ export const syncExercisesOnStart = async () => {
         const exercises = await fetchallexercises();
         console.log(`Syncing exercises ${exercises?.length} `);
 
-        await Exercise.deleteMany({});
-        await Exercise.insertMany(exercises);
+        exercises.forEach(async ({ name, ...data }) => {
+            await Exercise.findOneAndUpdate({ name }, data, { upsert: true });
+        });
     } catch (error) {
         console.error(error);
     }
