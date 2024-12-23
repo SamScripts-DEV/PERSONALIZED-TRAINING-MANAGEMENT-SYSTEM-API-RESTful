@@ -6,6 +6,7 @@ export const createProgress = async (req, res) => {
     try {
         const { userBDD: { _id: user_id }, body: { currentWeight, observations="" } } = req;
         const client_id = await Client.exists({ user_id });
+        const client = await Client.findOne({ user_id});
 
         if (!currentWeight)
             return res
@@ -40,6 +41,12 @@ export const createProgress = async (req, res) => {
         });
 
         await newProgress.save();
+
+        await ClientfindByIdAndUpdate(
+            client._id,
+            { $push: {progress: newProgress._id} },
+            {new: true}
+        )
 
         res.status(201).json({
             res: 'Progreso creado correctamente',
