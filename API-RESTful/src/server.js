@@ -25,15 +25,7 @@ app.use(express.json());
 // Rutas
 app.get('/', (_, res) => res.send('Server running'));
 
- //await syncExercisesOnStart();
-
-
-  cron.schedule('0 */12 * * *', async () => {
-      console.log('Syncing exercises');
-
-      await syncExercisesOnStart();
-      console.log('Exercises synced');
-  });
+ 
 
 app.use('/api/v1', [
     routerUsers,
