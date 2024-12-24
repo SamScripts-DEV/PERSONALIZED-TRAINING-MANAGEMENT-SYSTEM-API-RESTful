@@ -240,7 +240,8 @@ export const viewClientProfile = async (req, res) => {
             })
             .populate({
                 path: 'progress',
-                select: 'currentWeight observations, start_date',
+                select: 'currentWeight observations start_date',
+                options: { sort: { start_date: -1 }, limit: 1 },
             });
 
         if (!client)
