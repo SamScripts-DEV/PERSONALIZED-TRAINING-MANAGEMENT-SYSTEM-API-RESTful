@@ -64,7 +64,7 @@ export const clientRegisterAll = async (req, res) => {
 
 export const clientRegisterOnly = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { name, lastname, email, password } = req.body;
 
         if (!email || !password)
             return res.status(400).json({
@@ -78,7 +78,7 @@ export const clientRegisterOnly = async (req, res) => {
 
         const verificationCode = generateVerificationCode();
 
-        const newUser = new User({ email, password });
+        const newUser = new User({ name, lastname, email, password });
 
         newUser.password = await newUser.encryptPassword(password);
         newUser.verificationCode = verificationCode;
@@ -90,18 +90,9 @@ export const clientRegisterOnly = async (req, res) => {
 
         setTimeout(
             async () => {
-                try {
-                    const { _id } = newUser;
-                    const userInDb = await User.findById(_id);
-                    if (!userInDb?.confirmEmail) {
-                        await User.deleteOne({ _id });
-                        console.log(
-                            `Usuario ${email} ha sido eliminado por no verificar su correo, por favor vuelva a registrarse`,
-                        );
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
+                const { _id } = newUser;
+                const userInDb = await User.findById(_id);
+                if (!userInDb?.confirmEmail) await User.deleteOne({ _id });
             },
             3 * 60 * 1000,
         );
@@ -236,7 +227,7 @@ export const viewClientProfile = async (req, res) => {
             .populate('user_id', 'name lastname email')
             .populate({
                 path: 'coach_id',
-                populate: {path: 'user_id', select: 'name lastname email'}
+                populate: { path: 'user_id', select: 'name lastname email' },
             });
         // .populate({
         //     path: 'progress',
@@ -265,7 +256,7 @@ export const viewClientProfile = async (req, res) => {
         //                 lastname: client.coach_id.user_id?.lastname || 'No definido',
         //                 email: client.coach_id.user_id?.email || 'No definido',
         //             }
-        //         : null, 
+        //         : null,
         // };
 
         res.status(200).json({
@@ -376,7 +367,6 @@ export const updateClientProfile = async (req, res) => {
                 .status(400)
                 .json({ res: 'Rellene todos los campos obligatorios' });
         }
-        
 
         const user = await User.findByIdAndUpdate(
             user_id,
@@ -408,7 +398,7 @@ export const updateClientProfile = async (req, res) => {
                     const existingDay = routine.days.find(
                         (obj) => obj.day === day,
                     );
-                    
+
                     if (existingDay) return existingDay;
 
                     return { day, exercises: [] };
