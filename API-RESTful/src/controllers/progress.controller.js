@@ -44,7 +44,10 @@ export const createProgress = async (req, res) => {
 
         await Client.findByIdAndUpdate(
             client._id,
-            { $push: {progress: newProgress._id} },
+            {
+                $push: {progress: newProgress._id},
+                weight: currentWeight
+            },
             {new: true}
         )
 
