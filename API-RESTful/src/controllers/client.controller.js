@@ -237,11 +237,11 @@ export const viewClientProfile = async (req, res) => {
             .populate({
                 path: 'coach_id',
                 populate: {path: 'user_id', select: 'name lastname email'}
+            })
+            .populate({
+                path: 'progress',
+                select: 'currentWeight observations, start_date',
             });
-        // .populate({
-        //     path: 'progress',
-        //     select: 'currentWeight observations, start_date',
-        // });
 
         if (!client)
             return res
