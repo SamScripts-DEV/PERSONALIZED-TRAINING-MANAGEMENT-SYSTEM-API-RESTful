@@ -202,7 +202,7 @@ export const viewRoutineForClient = async (req, res) => {
 
         if (!_id) return res.status(404).json({ res: 'Cliente no encontrado' });
 
-        const routine = await Routine.findOne({ client_id: _id })
+        const routine = await Routine.find({ client_id: _id })
             .populate('client_id', 'name lastname')
             .populate('coach_id', 'name lastname')
             .populate('days.exercises', '-__v');
@@ -227,12 +227,13 @@ export const viewClientProfile = async (req, res) => {
             .populate('user_id', 'name lastname email')
             .populate({
                 path: 'coach_id',
-                populate: { path: 'user_id', select: 'name lastname email' },
+                populate: {path: 'user_id', select: 'name lastname email'}
+            })
+            .populate({
+                path: 'progress',
+                select: 'currentWeight observations start_date',
+                options: { sort: { start_date: -1 }, limit: 1 },
             });
-        // .populate({
-        //     path: 'progress',
-        //     select: 'currentWeight observations, start_date',
-        // });
 
         if (!client)
             return res

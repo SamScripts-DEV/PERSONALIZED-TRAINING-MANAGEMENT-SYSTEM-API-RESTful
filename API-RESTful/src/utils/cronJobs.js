@@ -27,6 +27,7 @@ export const startCronJob = (_) => {
             const clients = await Client.find({
                 days: normalizedToday,
             }).populate('user_id', 'name email');
+            
 
             if (clients.length === 0) {
                 console.log(
@@ -40,8 +41,8 @@ export const startCronJob = (_) => {
                 const {
                     user_id: { name, _id: userId },
                     notificationToken,
-                } = client.user_id;
-
+                } = client;
+                
                 if (Expo.isExpoPushToken(notificationToken)) {
                     mensajes.push({
                         to: notificationToken,
@@ -65,7 +66,7 @@ export const startCronJob = (_) => {
 
             const chunks = expo.chunkPushNotifications(mensajes);
             for (const chunk of chunks) {
-                await expo.sendPushNotificationsAsync(chunk);
+                const result = await expo.sendPushNotificationsAsync(chunk);
             }
 
             console.log('Notificaciones enviadas con éxito');
@@ -74,7 +75,7 @@ export const startCronJob = (_) => {
         }
     };
 
-    schedule('0 7 * * *', checkTrainingReminders, {
+    schedule('* 7 * * *', checkTrainingReminders, {
         timezone: 'America/Guayaquil',
     });
 
