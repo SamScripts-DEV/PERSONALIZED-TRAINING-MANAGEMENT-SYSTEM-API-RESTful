@@ -42,7 +42,7 @@ export const createProgress = async (req, res) => {
 
         await newProgress.save();
 
-        await ClientfindByIdAndUpdate(
+        await Client.findByIdAndUpdate(
             client._id,
             { $push: {progress: newProgress._id} },
             {new: true}
