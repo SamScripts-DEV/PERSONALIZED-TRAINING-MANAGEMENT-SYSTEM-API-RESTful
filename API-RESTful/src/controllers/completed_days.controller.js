@@ -38,7 +38,7 @@ export const markDaysAsCompleted = async (req, res) => {
 
 export const viewCompletedDays = async (req, res) => {
     try {
-        const { _id: user_id } = req.userBDD._id;
+        const { _id: user_id } = req.userBDD;
 
         if (!await Client.exists({ user_id })) 
             return res.status(404).json({ res: 'Cliente no encontrado' });
