@@ -307,12 +307,12 @@ export const chat = async (req, res) => {
 
         const { page = 1 , limit = 50 } = req.query;
 
-        const client = await Client.exists(client_id);
+        const client = await Client.exists({client_id});
 
         if (!client)
             return res.status(404).json({ res: 'Cliente no encontrado' });
 
-        const coach = await Coach.exists(coach_id);
+        const coach = await Coach.exists({coach_id});
 
         if (!coach)
             return res.status(404).json({ res: 'Entrenador no encontrado' });
@@ -321,10 +321,14 @@ export const chat = async (req, res) => {
         const chat = await Chat.find({ client_id, coach_id })
             .sort({ createdAt: -1 })
             .limit(limit)
-            .skip((page - 1) * limit)
-            .exec();
+            .skip((page - 1) * limit);
+            
 
+        console.log(chat);
+            
+        
         const count = await Chat.countDocuments({ client_id, coach_id });
+        
 
         res.status(200).json({
             res: 'Chat encontrado',
