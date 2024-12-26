@@ -10,6 +10,7 @@ import {
     viewCoachProfile,
     getClientsByCoachId,
     updateCoachProfile,
+    chat,
 } from '../controllers/coach.controller.js';
 import { verifyAuth } from '../middlewares/auth.js';
 import { verifyAdminRole } from '../middlewares/verifyAdminRol.js';
@@ -17,11 +18,7 @@ import Chat from '../models/chat.js';
 
 const router = Router();
 
-router.get('/chats/:client_id/:coach_id', async (req, res) => {
-    const client_id = req.params.client_id;
-    const coach_id = req.params.coach_id;
-    res.status(200).json(await Chat.find({ client_id, coach_id }));
-});
+router.get('/chats/:client_id/:coach_id', verifyAuth, chat); // Muestra el chat entre cliente y entrenador
 
 // Public routes
 router.post('/coach/register', coachRegister); // Registra un entrenador

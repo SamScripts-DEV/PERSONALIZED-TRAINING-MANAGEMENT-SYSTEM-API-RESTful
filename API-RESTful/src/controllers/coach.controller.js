@@ -2,6 +2,7 @@ import { sendMailToCoach } from '../config/nodemailer.js';
 import Coach from '../models/coach.js';
 import User from '../models/user.js';
 import Client from '../models/client.js';
+import Chat from '../models/chat.js';
 
 export const coachRegister = async (req, res) => {
     try {
@@ -294,6 +295,44 @@ export const updateCoachProfile = async (req, res) => {
             updatedCoach,
             updatedUser,
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ res: 'Error en el servidor', error });
+    }
+};
+
+export const chat = async (req, res) => {
+    try {
+        const { client_id, coach_id } = req.params;
+
+        const { page = 1 , limit = 50 } = req.query;
+
+        const client = await Client.exists(client_id);
+
+        if (!client)
+            return res.status(404).json({ res: 'Cliente no encontrado' });
+
+        const coach = await Coach.exists(coach_id);
+
+        if (!coach)
+            return res.status(404).json({ res: 'Entrenador no encontrado' });
+
+        // Buscar chat entre cliente y entrenador
+        const chat = await Chat.find({ client_id, coach_id })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await Chat.countDocuments({ client_id, coach_id });
+
+        res.status(200).json({
+            res: 'Chat encontrado',
+            totalPages: Math.ceil(count / limit),
+            chat,
+            currentPage: page,
+        });
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ res: 'Error en el servidor', error });
