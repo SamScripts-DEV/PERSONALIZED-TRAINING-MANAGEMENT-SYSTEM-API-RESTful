@@ -319,13 +319,8 @@ export const chat = async (req, res) => {
 
         // Buscar chat entre cliente y entrenador
         const chat = await Chat.find({ client_id, coach_id })
-            .sort({ createdAt: -1 })
             .limit(limit)
             .skip((page - 1) * limit);
-            
-
-        console.log(chat);
-            
         
         const count = await Chat.countDocuments({ client_id, coach_id });
         
