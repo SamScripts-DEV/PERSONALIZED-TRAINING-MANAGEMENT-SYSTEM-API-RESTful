@@ -148,7 +148,7 @@ export const configureClientProfile = async (req, res) => {
     try {
         const {
             body: { genre, weight, height, age, levelactivity, days, coach_id },
-            userBDD: { _id: user_id },
+            userBDD: { _id: user_id, name, lastname, email },
         } = req;
 
         if (Object.values(req.body).includes(''))
@@ -188,6 +188,9 @@ export const configureClientProfile = async (req, res) => {
 
         coach.clientes.push(client_id);
         await coach.save();
+
+        newClient.user_id = { user_id, name, lastname, email };
+        newClient.coach_id._id = coach_id;
 
         res.status(201).json({ res: 'Perfil creado correctamente', newClient });
     } catch (error) {
