@@ -227,7 +227,7 @@ export const viewClientProfile = async (req, res) => {
             .populate('user_id', 'name lastname email')
             .populate({
                 path: 'coach_id',
-                populate: {path: 'user_id', select: 'name lastname email'}
+                populate: { path: 'user_id', select: 'name lastname email' },
             })
             .populate({
                 path: 'progress',
@@ -340,9 +340,7 @@ export const updateClientProfile = async (req, res) => {
     try {
         const {
             body: {
-                name,
-                lastname,
-                email,
+                user_id: { name, lastname, email },
                 genre,
                 weight,
                 height,
