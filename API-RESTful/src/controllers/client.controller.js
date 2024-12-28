@@ -475,6 +475,15 @@ export const newPasswordClient = async (req, res) => {
     if (password !== confirmPassword)
         return res.status(400).json({ res: 'Las contraseñas no coinciden' });
 
+    if (password.length < 8)
+        return res.status(400).json({ res: 'La contraseña debe tener al menos 8 caracteres' });
+
+    if (!password.match(/[a-z]/) || !password.match(/[A-Z]/))
+        return res.status(400).json({ res: 'La contraseña debe contener al menos una letra mayúscula y una letra minúscula' });
+
+    if (!password.match(/\d/) || !password.match(/[!@#$%^&*]/))
+        return res.status(400).json({ res: 'La contraseña debe contener al menos un número y un caracter especial' });
+
     try {
         const user = await User.findOne({ email });
 
@@ -485,6 +494,7 @@ export const newPasswordClient = async (req, res) => {
             return res
                 .status(400)
                 .json({ res: 'Correo no verificado o codigo expirado' });
+    
 
         user.password = await user.encryptPassword(password);
         user.codePasswordUsed = false;
