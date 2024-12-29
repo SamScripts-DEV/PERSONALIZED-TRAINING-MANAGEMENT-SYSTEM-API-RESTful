@@ -12,7 +12,7 @@ export const markDaysAsCompleted = async (req, res) => {
             cadena.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
         const currentDay = quitarAcentos(
-            new Date().toLocaleString('es-ES', { weekday: 'long' }),
+            Date.now().toLocaleString('es-EC', { weekday: 'long' }),
         );
 
         if (day !== currentDay)
@@ -27,7 +27,7 @@ export const markDaysAsCompleted = async (req, res) => {
 
         const completeDay = await CompletedDays.findOneAndUpdate(
             { client_id, day },
-            { completed: true, date: new Date() },
+            { completed: true, date: Date.now() },
             { new: true, upsert: true },
         );
 
@@ -44,11 +44,13 @@ export const viewCompletedDays = async (req, res) => {
     try {
         const { _id: user_id } = req.userBDD;
 
-        if (!(await Client.exists({ user_id })))
+        const client_id = await Client.exists({ user_id });
+
+        if (!client_id)
             return res.status(404).json({ res: 'Cliente no encontrado' });
 
         const completedDays = await CompletedDays.find({
-            user_id,
+            client_id,
         });
 
         res.status(200).json({
