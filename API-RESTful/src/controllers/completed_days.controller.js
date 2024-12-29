@@ -8,12 +8,17 @@ export const markDaysAsCompleted = async (req, res) => {
             body: { day },
         } = req;
 
+        console.log("day: " , day);
+        
+
         const quitarAcentos = (cadena) =>
             cadena.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
         const currentDay = quitarAcentos(
-            Date.now().toLocaleString('es-EC', { weekday: 'long' }),
+            new Date().toLocaleString('es-EC', { weekday: 'long' }),
         );
+
+        console.log("currentDay: " , currentDay);
 
         if (day !== currentDay)
             return res
